@@ -1,0 +1,16 @@
+[cards]
+[cards.strike]
+type = "attack"
+energy_cost = 1
+target = "enemy"
+actions = ["attack 6"]
+[cards.bash]
+type = "attack"
+actions = ["attack 8", "apply vulnerable 2"]
+target = "enemy"
+energy_cost = 2
+[cards.defend]
+type = "skill"
+actions = ["apply block 5"]
+energy_cost = 1
+target = "self"
