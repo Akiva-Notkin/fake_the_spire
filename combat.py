@@ -66,7 +66,7 @@ class CardReference:
 class Game:
     def __init__(self, character: str):
         self.floor = None
-        self.game_state = {'floor_num': 1, 'player':{'hp': 100, 'max_hp': 100, 'max_energy': 3,
+        self.game_state = {'floor_num': 1, 'player': {'hp': 5, 'max_hp': 5, 'max_energy': 3,
                                                      'deck': {'strike': 5, 'bash': 1, 'defend': 4}}}
         self.current_options = []
         self.enemy_reference = EnemyReference(ENEMY_TOML)
@@ -86,7 +86,6 @@ class Game:
         except FloorOver:
             self.game_state['floor_num'] += 1
             self.floor = self.get_next_floor()
-            pass
         updated_options = self.floor.get_new_options()
         self.current_options = updated_options
 
@@ -186,9 +185,11 @@ class Combat(Floor):
         if 'vulnerable' in target['optional_dict']:
             attack_value *= 1.5
         if 'block' in target['optional_dict']:
+            original_attack_value = attack_value
             attack_value -= target['optional_dict']['block']
             if attack_value < 0:
                 attack_value = 0
+            target['optional_dict']['block'] -= original_attack_value
             if target['optional_dict']['block'] < 0:
                 target['optional_dict']['block'] = 0
         target['hp'] -= attack_value
@@ -202,7 +203,10 @@ class Combat(Floor):
             target = self.player
         else:
             target = self.get_enemy_by_id(option_target)
-        target['optional_dict'][option_key] = option_value
+        if option_key in target['optional_dict']:
+            target['optional_dict'][option_key] += option_value
+        else:
+            target['optional_dict'][option_key] = option_value
 
     def draw(self):
         if len(self.player['draw_pile']) == 0:

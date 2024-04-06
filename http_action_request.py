@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from combat import Game, GameOver
+from combat import Game, GameOver, FloorOver
 
 app = Flask(__name__)
 
@@ -8,8 +8,8 @@ class GameManager:
     _instance = None
 
     @staticmethod
-    def get_instance(reset: bool = False):
-        if GameManager._instance is None or reset:
+    def get_instance():
+        if GameManager._instance is None:
             GameManager._instance = GameManager()
         return GameManager._instance
 
@@ -19,37 +19,24 @@ class GameManager:
         self.current_game = Game('character')
 
 
-@app.route('/start_game', methods=['POST'])
-def start_game():
+@app.route('/play_game', methods=['POST'])
+def play_game():
     """
     Starts the game.
     """
 
-    game = GameManager.get_instance(True).current_game
-
-    options = game.current_options
-
-    # Respond to the client with the result
-    # The client decides whether to make another request based on this response
-    game_state = game.to_dict()
-    return jsonify({"game": game_state, "options": options}), 200
-
-
-@app.route('/take_action', methods=['POST'])
-def take_action():
-    """
-    Receives an action from the client and processes it.
-    """
-    # Receive the action from the client
     action = request.json.get('action')
 
     if not action:
-        return jsonify({"error": "No action provided"}), 400
+        game = GameManager.get_instance().current_game
+        options = game.current_options
 
-    # Get the current game
-    game = GameManager.get_instance().current_game
-
-    if game is not None:
+        # Respond to the client with the result
+        # The client decides whether to make another request based on this response
+        game_state = game.to_dict()
+        return jsonify({"game": game_state, "options": options}), 200
+    else:
+        game = GameManager.get_instance().current_game
         valid_action = game.validate_action(action)
         options = game.current_options
         game_state = game.to_dict()
@@ -59,6 +46,8 @@ def take_action():
             game.action_initiate(action)
         except GameOver:
             return jsonify({"error": "Game over", "game": game_state}), 200
+        except FloorOver:
+            pass
         options = game.current_options
         game_state = game.to_dict()
         return jsonify({"game": game_state, "options": options}), 200

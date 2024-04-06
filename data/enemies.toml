@@ -1,6 +1,6 @@
 [enemies]
 [enemies.louse]
-hp = 6
-max_hp = 6
+hp = 20
+max_hp = 20
 actions = ["attack 5"]
 valid_floors = [1, 2, 3]
