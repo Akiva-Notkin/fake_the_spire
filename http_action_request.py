@@ -44,8 +44,8 @@ def play_game():
             return jsonify({"error": "Invalid action", "game": game_state, "options": options}), 400
         try:
             game.action_initiate(action)
-        except GameOver:
-            return jsonify({"error": "Game over", "game": game_state}), 200
+        except GameOver as ge:
+            return jsonify({"game_over": str(ge), "game": game_state}), 200
         except FloorOver:
             pass
         options = game.current_options

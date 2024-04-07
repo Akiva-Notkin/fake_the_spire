@@ -12,7 +12,8 @@ class FloorOver(Exception):
 
 
 class GameOver(Exception):
-    pass
+    def __init__(self, won: bool = False):
+        super().__init__(won)
 
 
 class EnemyReference:
@@ -32,6 +33,7 @@ class EnemyReference:
     def generate_enemies_for_floor(self, floor_num: int) -> dict:
         enemies = []
         for enemy_name, enemy in self.all_enemies['enemies'].items():
+            enemy = enemy.copy()
             if floor_num in enemy['valid_floors']:
                 enemy['id'] = enemy_name
                 enemy['optional_dict'] = {}
@@ -56,7 +58,7 @@ class CardReference:
     def generate_deck_dict_from_init_dict(self, init_dict: dict) -> dict:
         cards = {}
         for key, value in init_dict.items():
-            card_instance = self.all_cards['cards'][key]
+            card_instance = self.all_cards['cards'][key].copy()
             for i in range(value):
                 card_id = f'{key}_{i}'
                 cards[card_id] = card_instance
@@ -91,7 +93,7 @@ class Game:
 
     def get_next_floor(self):
         if self.game_state['floor_num'] > 3:
-            raise GameOver
+            raise GameOver(won=True)
         return Combat(self.game_state)
 
     def to_dict(self):
@@ -162,7 +164,7 @@ class Combat(Floor):
 
             logging.info(f'Updated state: {self.to_dict()}')
             if self.player['hp'] <= 0:
-                raise GameOver
+                raise GameOver(won=False)
             if all(enemy['hp'] <= 0 for enemy in self.enemy_list):
                 raise FloorOver
 
