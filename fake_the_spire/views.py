@@ -1,5 +1,6 @@
-from flask import Flask, jsonify, request
-from combat import Game, GameOver, FloorOver
+from fake_the_spire.combat import Game
+from fake_the_spire import GameOver, FloorOver
+from flask import jsonify, Flask, request
 
 app = Flask(__name__)
 
@@ -13,9 +14,12 @@ class GameManager:
             GameManager._instance = GameManager()
         return GameManager._instance
 
-    def __init__(self):
+    def __init__(self, reset: bool = False):
         if GameManager._instance is not None:
-            raise Exception("This class is a singleton!")
+            if reset:
+                GameManager._instance.current_game = Game('character')
+            else:
+                raise Exception("This class is a singleton!")
         self.current_game = Game('character')
 
 
@@ -28,7 +32,7 @@ def play_game():
     action = request.json.get('action')
 
     if not action:
-        game = GameManager.get_instance().current_game
+        game = GameManager(reset=True).get_instance().current_game
         options = game.current_options
 
         # Respond to the client with the result
@@ -36,7 +40,7 @@ def play_game():
         game_state = game.to_dict()
         return jsonify({"game": game_state, "options": options}), 200
     else:
-        game = GameManager.get_instance().current_game
+        game = GameManager(reset=False).get_instance().current_game
         valid_action = game.validate_action(action)
         options = game.current_options
         game_state = game.to_dict()
@@ -51,7 +55,3 @@ def play_game():
         options = game.current_options
         game_state = game.to_dict()
         return jsonify({"game": game_state, "options": options}), 200
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
