@@ -1,4 +1,4 @@
-from fake_the_spire.combat import Game
+from fake_the_spire.game import Game
 from fake_the_spire import GameOver, FloorOver
 from flask import jsonify, Flask, request
 

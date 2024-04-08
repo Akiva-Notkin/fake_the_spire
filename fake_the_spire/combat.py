@@ -142,7 +142,6 @@ class Combat(Floor):
 
     def get_new_options(self) -> list[str]:
         cards_in_hand = self.player['hand']
-        print(cards_in_hand.keys())
         enemies = self.enemy_list
         options = []
         for card_id, card in cards_in_hand.items():
