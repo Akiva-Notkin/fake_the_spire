@@ -109,6 +109,69 @@ class TestCombat(unittest.TestCase):
         combat.take_action("end")
         self.assertEqual(combat.player['hp'], 5)
 
+    def test_attack_blocked_target(self):
+        game_state = {
+            "floor_num": 1,
+            "player": {
+                "deck": {
+                    "strike": 5
+                },
+                "hp": 10,
+                "max_energy": 3,
+                "max_hp": 10
+            }
+        }
+        combat = Combat(game_state, ['blockman'])
+        combat.take_action("end")
+        self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 10)
+        combat.take_action("play strike_0 blockman")
+        self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 4)
+        combat.take_action("play strike_1 blockman")
+        self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 0)
+        self.assertEqual(combat.enemy_list[0]['hp'], 8)
+
+    def test_enemy_attacks_player_with_block(self):
+        game_state = {
+            "floor_num": 1,
+            "player": {
+                "deck": {
+                    "defend": 5
+                },
+                "hp": 10,
+                "max_energy": 3,
+                "max_hp": 10
+            }
+        }
+        combat = Combat(game_state, ['louse'])
+        combat.take_action("play defend_0")
+        self.assertEqual(combat.player['optional_dict']['block'], 5)
+        combat.take_action("end")
+        self.assertEqual(combat.player['optional_dict']['block'], 0)
+        self.assertEqual(combat.player['hp'], 10)
+
+    def test_enemy_with_block_and_vulnerable(self):
+        game_state = {
+            "floor_num": 1,
+            "player": {
+                "deck": {
+                    "bash": 5
+                },
+                "hp": 10,
+                "max_energy": 3,
+                "max_hp": 10
+            }
+        }
+        combat = Combat(game_state, ['blockman'])
+        combat.take_action("end")
+        combat.take_action("play bash_0 blockman")
+        self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 2)
+        self.assertEqual(combat.enemy_list[0]['optional_dict']['vulnerable'], 2)
+        combat.take_action("end")
+        combat.take_action("play bash_0 blockman")
+        self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 0)
+        self.assertEqual(combat.enemy_list[0]['optional_dict']['vulnerable'], 3)
+        self.assertEqual(combat.enemy_list[0]['hp'], 10)
+
     def test_game_over_combat_damage(self):
         game_state = {
             "floor_num": 1,
@@ -143,3 +206,4 @@ class TestCombat(unittest.TestCase):
         combat = Combat(game_state, ['weakling'])
         with self.assertRaises(FloorOver):
             combat.take_action("play strike_0 weakling")
+
