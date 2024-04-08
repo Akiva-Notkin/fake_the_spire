@@ -18,8 +18,6 @@ class GameManager:
         if GameManager._instance is not None:
             if reset:
                 GameManager._instance.current_game = Game('character')
-            else:
-                raise Exception("This class is a singleton!")
         self.current_game = Game('character')
 
 
