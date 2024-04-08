@@ -2,6 +2,8 @@ from fake_the_spire.game import Game
 from fake_the_spire import GameOver, FloorOver
 from flask import jsonify, Flask, request
 
+import logging
+
 app = Flask(__name__)
 
 
@@ -45,6 +47,9 @@ def play_game():
         if not valid_action:
             return jsonify({"error": "Invalid action", "game": game_state, "options": options}), 400
         try:
+            logging.info(f"game_state: {game_state}")
+            logging.info(f"options: {options}")
+            logging.info(f"action: {action}")
             game.action_initiate(action)
         except GameOver as ge:
             return jsonify({"game_over": str(ge), "game": game_state}), 200

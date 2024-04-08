@@ -1,7 +1,10 @@
 import unittest
+import logging
 
 from fake_the_spire import GameOver, FloorOver
 from fake_the_spire.combat import Combat
+
+logging.basicConfig(level=logging.INFO)
 
 
 class TestCombat(unittest.TestCase):

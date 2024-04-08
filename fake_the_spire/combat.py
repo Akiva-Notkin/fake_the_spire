@@ -33,8 +33,8 @@ class Combat(Floor):
         self.start_turn()
 
     def take_action(self, action: str):
-        logging.info(f'Action: {action}')
-        logging.info(f'Old state: {self.to_dict()}')
+        logging.debug(f'Action: {action}')
+        logging.debug(f'Old state: {self.to_dict()}')
         action = action.split(' ')
         if action[0] == 'attack':
             self.attack(action[1:])
@@ -51,7 +51,7 @@ class Combat(Floor):
         else:
             logging.info(f'Invalid action: {action}')
 
-        logging.info(f'Updated state: {self.to_dict()}')
+        logging.debug(f'Updated state: {self.to_dict()}')
         if self.player['hp'] <= 0:
             raise GameOver(won=False)
         if all(enemy['hp'] <= 0 for enemy in self.enemy_list):
