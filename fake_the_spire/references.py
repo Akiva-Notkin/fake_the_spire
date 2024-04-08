@@ -1,9 +1,7 @@
 import toml
 import random
 from pathlib import Path
-
-ENEMY_TOML = Path('data/enemies.toml')
-CARD_TOML = Path('data/cards.toml')
+from config import config
 
 
 class EnemyReference:
@@ -12,10 +10,10 @@ class EnemyReference:
     @staticmethod
     def get_instance():
         if EnemyReference._instance is None:
-            EnemyReference._instance = EnemyReference()
+            EnemyReference._instance = EnemyReference(config.ENEMY_TOML)
         return EnemyReference._instance
 
-    def __init__(self, enemy_toml: Path = ENEMY_TOML, reset: bool = False):
+    def __init__(self, enemy_toml: Path, reset: bool = False):
         if EnemyReference._instance is not None:
             if reset:
                 EnemyReference._instance.all_enemies = toml.load(enemy_toml)
@@ -33,6 +31,15 @@ class EnemyReference:
                 enemies.append(enemy)
         return random.choice(enemies)
 
+    def generate_enemies_by_id_list(self, id_list: list[str]) -> list[dict]:
+        all_enemies = []
+        for enemy_id in id_list:
+            enemy_copy = self.all_enemies['enemies'][enemy_id].copy()
+            enemy_copy['id'] = enemy_id
+            enemy_copy['optional_dict'] = {}
+            all_enemies.append(enemy_copy)
+        return all_enemies
+
 
 class CardReference:
     _instance = None
@@ -40,10 +47,10 @@ class CardReference:
     @staticmethod
     def get_instance():
         if CardReference._instance is None:
-            CardReference._instance = CardReference()
+            CardReference._instance = CardReference(config.CARD_TOML)
         return CardReference._instance
 
-    def __init__(self, card_toml: Path = CARD_TOML, reset: bool = False):
+    def __init__(self, card_toml: Path, reset: bool = False):
         if CardReference._instance is not None:
             if reset:
                 CardReference._instance.all_enemies = toml.load(card_toml)
