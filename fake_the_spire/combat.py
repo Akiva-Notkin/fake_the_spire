@@ -157,9 +157,21 @@ class Combat(Floor):
         self.player['energy'] = 0
         self.player['discard_pile'].update(self.player['hand'])
         self.player['hand'] = {}
+        for decriment_optional_key in ['vulnerable', 'weak']:
+            if decriment_optional_key in self.player['optional_dict']:
+                self.player['optional_dict'][decriment_optional_key] = (
+                        self.player['optional_dict'][decriment_optional_key] - 1)
+                if self.player['optional_dict'][decriment_optional_key] < 0:
+                    self.player['optional_dict'][decriment_optional_key] = 0
         for enemy in self.enemy_list:
-            enemy_action = random.choice(enemy['actions'])
-            self.take_action(f"{enemy_action} {enemy['id']} player")
+            enemy_action, target = random.choice(enemy['actions'])
+            self.take_action(f"{enemy_action} {enemy['id']} {'player' if target == 'player' else enemy['id']}")
+            for decriment_optional_key in ['vulnerable', 'weak']:
+                if decriment_optional_key in enemy['optional_dict']:
+                    enemy['optional_dict'][decriment_optional_key] = (
+                        enemy['optional_dict'][decriment_optional_key] - 1)
+                    if enemy['optional_dict'][decriment_optional_key] < 0:
+                        enemy['optional_dict'][decriment_optional_key] = 0
         self.start_turn()
 
     def start_turn(self):

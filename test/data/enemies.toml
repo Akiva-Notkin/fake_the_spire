@@ -2,11 +2,17 @@
 [enemies.louse]
 hp = 100
 max_hp = 100
-actions = ["attack 5"]
+actions = [["attack 5", "player"]]
 valid_floors = [1, 2, 3]
 
 [enemies.weakling]
 hp = 1
 max_hp = 1
-actions = ["attack 0"]
+actions = [["attack 0", "player"]]
+valid_floors = [1, 2, 3]
+
+[enemies.blockman]
+hp = 10
+max_hp = 10
+actions = [["apply block 10", "self"]]
 valid_floors = [1, 2, 3]
