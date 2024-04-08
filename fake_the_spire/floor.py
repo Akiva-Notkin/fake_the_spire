@@ -4,7 +4,10 @@ class Floor:
         pass
 
     def get_new_options(self) -> list[str]:
-        pass
+        ...
 
     def to_dict(self):
-        pass
+        ...
+
+    def take_action(self, action: str):
+        ...

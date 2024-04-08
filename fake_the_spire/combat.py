@@ -32,7 +32,7 @@ class Combat(Floor):
     def start_combat(self):
         self.start_turn()
 
-    def take_action(self, action: str = None):
+    def take_action(self, action: str):
         logging.info(f'Action: {action}')
         logging.info(f'Old state: {self.to_dict()}')
         action = action.split(' ')
