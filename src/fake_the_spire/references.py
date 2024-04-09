@@ -1,7 +1,7 @@
 import toml
 import random
 from pathlib import Path
-from config import config
+from fake_the_spire.config import config
 
 
 class EnemyReference:

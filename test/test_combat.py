@@ -1,7 +1,7 @@
 import unittest
 import logging
 
-from fake_the_spire import GameOver, FloorOver
+from fake_the_spire.game import GameOver, FloorOver
 from fake_the_spire.combat import Combat
 
 logging.basicConfig(level=logging.INFO)
@@ -206,4 +206,4 @@ class TestCombat(unittest.TestCase):
         combat = Combat(game_state, ['weakling'])
         with self.assertRaises(FloorOver):
             combat.take_action("play strike_0 weakling")
-
+        self.assertLessEqual(combat.enemy_list[0]['hp'], 0)
