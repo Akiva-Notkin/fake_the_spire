@@ -2,7 +2,7 @@ from fake_the_spire.references import EnemyReference, CardReference
 from fake_the_spire.combat import Combat
 from fake_the_spire import FloorOver, GameOver
 
-from config import config
+from fake_the_spire.config import config
 
 
 class Game:
