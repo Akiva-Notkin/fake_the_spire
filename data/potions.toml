@@ -1,0 +1,4 @@
+[potions]
+[potions.block_potion]
+target = "self"
+actions = ["apply block 12"]

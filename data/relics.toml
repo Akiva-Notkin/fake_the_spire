@@ -1,0 +1,8 @@
+[relics]
+[relics.paper_phrog]
+rarity = "uncommon"
+class = "ironclad"
+
+[relics.burning_blood]
+rarity = "base"
+class = "ironclad"

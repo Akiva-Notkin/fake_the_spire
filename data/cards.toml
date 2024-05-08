@@ -18,4 +18,4 @@ target = "self"
 type = "skill"
 actions = ["draw", "draw"]
 target = "self"
-energy_cost = 0
+energy_cost = 1

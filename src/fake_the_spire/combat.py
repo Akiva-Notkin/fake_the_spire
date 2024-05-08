@@ -2,24 +2,31 @@ import logging
 import random
 from fake_the_spire import FloorOver, GameOver
 from fake_the_spire.floor import Floor
-from fake_the_spire.references import EnemyReference, CardReference
+from fake_the_spire.references import EnemyReference, CardReference, CombatReference
+
+logger = logging.getLogger(__name__)
 
 
 class Combat(Floor):
-    def __init__(self, game_state: dict, enemy_ids: list[str] = None):
+    def __init__(self, game_state: dict, enemy_ids: list[str] = None, combat_type: str = "hallway"):
         super().__init__(game_state)
+        self.floor_type = "combat"
         self.player = {'hp': game_state['player']['hp'], 'max_hp': game_state['player']['max_hp'],
                        'max_energy': game_state['player']['max_energy'], 'optional_dict': {}, 'hand': {}, 'energy': 0,
-                       'draw_pile': self.generate_draw_pile(game_state['player']['deck']), 'discard_pile': {}}
-        self.enemy_list = self.generate_enemies(game_state['floor_num'], enemy_ids)
+                       'draw_pile': self.generate_draw_pile(game_state['player']['deck']), 'discard_pile': {},
+                       'potions': game_state['player']['potions']}
+        self.enemy_list = self.generate_enemies(game_state['act'], combat_type, enemy_ids)
+        self.combat_type = combat_type
         self.start_combat()
 
     @staticmethod
-    def generate_enemies(floor_num: int, enemy_ids: list[str] = None) -> list[dict]:
+    def generate_enemies(act: int, combat_type: str, enemy_ids: list[str] = None) -> list[dict]:
         enemy_reference = EnemyReference.get_instance()
+        combat_reference = CombatReference.get_instance()
         if enemy_ids:
             return enemy_reference.generate_enemies_by_id_list(enemy_ids)
-        return [enemy_reference.generate_enemies_for_floor(floor_num)]
+        enemy_ids = combat_reference.generate_enemies_by_combat_type_and_act(act, combat_type)
+        return enemy_reference.generate_enemies_by_id_list(enemy_ids)
 
     @staticmethod
     def generate_draw_pile(init_deck: dict) -> dict:
@@ -33,8 +40,8 @@ class Combat(Floor):
         self.start_turn()
 
     def take_action(self, action: str):
-        logging.debug(f'Action: {action}')
-        logging.debug(f'Old state: {self.to_dict()}')
+        logger.debug(f'Action: {action}')
+        logger.debug(f'Old state: {self.to_dict()}')
         action = action.split(' ')
         if action[0] == 'attack':
             self.attack(action[1:])
@@ -49,9 +56,9 @@ class Combat(Floor):
         elif action[0] == 'gain_energy':
             self.gain_energy(action[1:])
         else:
-            logging.info(f'Invalid action: {action}')
+            logger.info(f'Invalid action: {action}')
 
-        logging.debug(f'Updated state: {self.to_dict()}')
+        logger.debug(f'Updated state: {self.to_dict()}')
         if self.player['hp'] <= 0:
             raise GameOver(won=False)
         if all(enemy['hp'] <= 0 for enemy in self.enemy_list):
@@ -138,7 +145,7 @@ class Combat(Floor):
         amount = int(action[0])
         self.player['energy'] += amount
 
-    def get_new_options(self) -> list[str]:
+    def get_new_options(self) -> (list[str], int):
         cards_in_hand = self.player['hand']
         enemies = self.enemy_list
         options = []
@@ -146,32 +153,35 @@ class Combat(Floor):
             if card['energy_cost'] <= self.player['energy']:
                 if card['target'] == 'enemy':
                     for enemy in enemies:
-                        enemy_id = enemy['id']
-                        options.append(f'play {card_id} {enemy_id}')
+                        if enemy['hp'] >= 0:
+                            enemy_id = enemy['id']
+                            options.append(f'play {card_id} {enemy_id}')
                 else:
                     options.append(f'play {card_id}')
         options.append('end')
-        return options
+        return options, 1
 
     def resolve_end_turn(self):
         self.player['energy'] = 0
         self.player['discard_pile'].update(self.player['hand'])
         self.player['hand'] = {}
+        for enemy in self.enemy_list:
+            if enemy['hp'] >= 0:
+                enemy_action, target = random.choice(enemy['actions'])
+                self.take_action(f"{enemy_action} {enemy['id']} {'player' if target == 'player' else enemy['id']}")
+                for decriment_optional_key in ['vulnerable', 'weak']:
+                    if decriment_optional_key in enemy['optional_dict']:
+                        enemy['optional_dict'][decriment_optional_key] = (
+                            enemy['optional_dict'][decriment_optional_key] - 1)
+                        if enemy['optional_dict'][decriment_optional_key] < 0:
+                            enemy['optional_dict'][decriment_optional_key] = 0
+
         for decriment_optional_key in ['vulnerable', 'weak']:
             if decriment_optional_key in self.player['optional_dict']:
                 self.player['optional_dict'][decriment_optional_key] = (
                         self.player['optional_dict'][decriment_optional_key] - 1)
                 if self.player['optional_dict'][decriment_optional_key] < 0:
                     self.player['optional_dict'][decriment_optional_key] = 0
-        for enemy in self.enemy_list:
-            enemy_action, target = random.choice(enemy['actions'])
-            self.take_action(f"{enemy_action} {enemy['id']} {'player' if target == 'player' else enemy['id']}")
-            for decriment_optional_key in ['vulnerable', 'weak']:
-                if decriment_optional_key in enemy['optional_dict']:
-                    enemy['optional_dict'][decriment_optional_key] = (
-                        enemy['optional_dict'][decriment_optional_key] - 1)
-                    if enemy['optional_dict'][decriment_optional_key] < 0:
-                        enemy['optional_dict'][decriment_optional_key] = 0
         self.start_turn()
 
     def start_turn(self):

@@ -1,0 +1,48 @@
+[combats]
+[combats.cultist]
+act = 1
+combat_type = 'first_hallway'
+enemies = ['cultist']
+weight = 1
+
+[combats.small_slimes]
+act = 1
+combat_type = 'first_hallway'
+enemies = ['acid_slime_m', 'acid_slime_s']
+weight = 1
+
+[combats.jaw_worm]
+act = 1
+combat_type = 'first_hallway'
+enemies = ['jaw_worm']
+weight = 1
+#
+#[combats.large_slime]
+#act = 1
+#combat_type = 'hallway'
+#enemies = ['acid_slime_l']
+#weight = 1
+
+[combats.exordium_wildlife]
+act = 1
+combat_type = 'hallway'
+enemies = ['jaw_worm', 'acid_slime_m']
+weight = 1.5
+
+[combats.gremlin_nob]
+act = 1
+combat_type = 'elite'
+enemies = ['gremlin_nob']
+weight = 1
+
+#[combats.lagavulin]
+#act = 1
+#combat_type = 'elite'
+#enemies = ['lagavulin']
+#weight = 1
+
+[combats.the_guardian]
+act = 1
+combat_type = 'boss'
+enemies = ['the_guardian']
+weight = 1
