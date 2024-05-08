@@ -16,10 +16,11 @@ class GameManager:
             GameManager._instance = GameManager()
         return GameManager._instance
 
-    def __init__(self, reset: bool = False):
-        if GameManager._instance is not None:
-            if reset:
-                GameManager._instance.current_game = Game('character')
+    def __init__(self):
+        if GameManager._instance is None:
+            self.current_game = Game('character')
+
+    def reset_game(self):
         self.current_game = Game('character')
 
 
@@ -32,7 +33,9 @@ def play_game():
     action = request.json.get('action')
 
     if not action:
-        game = GameManager(reset=True).get_instance().current_game
+        game_manager = GameManager.get_instance()
+        game_manager.reset_game()
+        game = game_manager.current_game
         options = game.current_options
 
         # Respond to the client with the result
@@ -40,10 +43,13 @@ def play_game():
         game_state = game.to_dict()
         return jsonify({"game": game_state, "options": options}), 200
     else:
-        game = GameManager(reset=False).get_instance().current_game
+        game_manager = GameManager.get_instance()
+        game = game_manager.current_game
         valid_action = game.validate_action(action)
         options = game.current_options
         game_state = game.to_dict()
+        # print(game_state)
+        # print(options)
         if not valid_action:
             return jsonify({"error": "Invalid action", "game": game_state, "options": options}), 400
         try:
