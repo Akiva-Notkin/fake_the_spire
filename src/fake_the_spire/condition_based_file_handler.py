@@ -1,52 +1,56 @@
 import logging
 from pathlib import Path
 import datetime
+import socket
 
 
 class ConditionBasedFileHandler(logging.FileHandler):
+    _file_count = 0
+
     def __init__(self, mode='a', encoding=None, delay=False):
         # Set the initial log file based on current time
+        _file_count = 0
         filename = self.generate_filename()
         super().__init__(filename, mode, encoding, delay)
-        self.baseFilePath = Path(filename)
-
-    @staticmethod
-    def generate_filename():
-        # Generate a filename based on the current timestamp
-        directory = Path(__file__).resolve().parent.parent.parent / 'logs'
-        directory.mkdir(exist_ok=True)  # Ensure directory exists
-        current_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-        return str(directory / f"log_{current_time}.log")
+        self.baseFilename = str(Path(filename))
 
     def emit(self, record):
         """
         Overwrite the emit method to check the condition before logging.
         """
+        logging.FileHandler.emit(self, record)
+
         if self.check_condition(record):
             self.rotate_log()
-        logging.FileHandler.emit(self, record)
 
     @staticmethod
     def check_condition(record):
         """
         Define your condition here. This function should return True when the log file needs to be rotated.
         """
-        # Example condition: rotate the file if a specific error is logged
         if record.levelname == 'INFO' and 'GameOver' in record.getMessage():
             return True
         return False
 
     def rotate_log(self):
-        self.close()
-        new_filename = self.baseFilePath.with_name(self.namer())
-        self.baseFilePath.rename(new_filename)
+        # Generate a new filename and rotate to it
+        self.close()  # Close the current file
+        new_filename = self.generate_filename()
+
+        self.baseFilename = str(Path(new_filename))
+        # Update the current file path
         if not self.delay:
-            self.stream = self._open()
+            self.stream = self._open()  # Reopen the file stream
 
     @staticmethod
-    def namer():
+    def generate_filename():
+        # Generate a filename based on the current timestamp with an incrementing counter
+        directory = Path(__file__).resolve().parent.parent.parent / 'logs'
+        directory.mkdir(exist_ok=True)  # Ensure the directory exists
         current_time = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
-        return f"log_{current_time}.log"
+        filename = f"log_{current_time}_{ConditionBasedFileHandler._file_count}.log"
+        ConditionBasedFileHandler._file_count += 1  # Increment the counter
+        return str(directory / filename)
 
 
 def setup_logging():

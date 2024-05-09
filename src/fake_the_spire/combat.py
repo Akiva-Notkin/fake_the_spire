@@ -11,8 +11,8 @@ class Combat(Floor):
     def __init__(self, game_state: dict, enemy_ids: list[str] = None, combat_type: str = "hallway"):
         super().__init__(game_state)
         self.floor_type = "combat"
-        self.player = {'hp': game_state['player']['hp'], 'max_hp': game_state['player']['max_hp'],
-                       'max_energy': game_state['player']['max_energy'], 'optional_dict': {}, 'hand': {}, 'energy': 0,
+        self.game_state = game_state
+        self.player = {'max_energy': game_state['player']['max_energy'], 'optional_dict': {}, 'hand': {}, 'energy': 0,
                        'draw_pile': self.generate_draw_pile(game_state['player']['deck']), 'discard_pile': {},
                        'potions': game_state['player']['potions']}
         self.enemy_list = self.generate_enemies(game_state['act'], combat_type, enemy_ids)
@@ -59,8 +59,6 @@ class Combat(Floor):
             logger.info(f'Invalid action: {action}')
 
         logger.debug(f'Updated state: {self.to_dict()}')
-        if self.player['hp'] <= 0:
-            raise GameOver(won=False)
         if all(enemy['hp'] <= 0 for enemy in self.enemy_list):
             raise FloorOver
 
@@ -91,7 +89,10 @@ class Combat(Floor):
             target['optional_dict']['block'] -= original_attack_value
             if target['optional_dict']['block'] < 0:
                 target['optional_dict']['block'] = 0
-        target['hp'] -= attack_value
+        if attack_target == 'player':
+            self.game_state['player']['hp'] -= attack_value
+        else:
+            target['hp'] -= attack_value
 
     def apply(self, action: list[str]):
         option_key = action[0]

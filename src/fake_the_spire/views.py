@@ -57,7 +57,7 @@ def play_game():
             logger.info(f"action: {action}")
             game.action_initiate(action)
         except GameOver as ge:
-            logger.info(f"GameOver: {ge}"
+            logger.info(f"GameOver: {ge} "
                         f"game_state: {game_state}")
             return jsonify({"game_over": str(ge), "game": game_state}), 200
         except FloorOver:
