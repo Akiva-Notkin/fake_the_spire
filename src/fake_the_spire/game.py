@@ -1,5 +1,3 @@
-import logging
-
 from fake_the_spire.references import EnemyReference, CardReference
 from fake_the_spire.combat import Combat
 from fake_the_spire.end_of_combat_reward import EndOfCombatReward
@@ -7,7 +5,9 @@ from fake_the_spire import FloorOver, GameOver
 
 from fake_the_spire.config import config
 
-logger = logging.getLogger(__name__)
+import logging
+
+logger = logging.getLogger('flask_app')
 
 
 class Game:

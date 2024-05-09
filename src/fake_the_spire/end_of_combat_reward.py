@@ -7,6 +7,8 @@ from fake_the_spire.references import CardReference, PotionReference, RelicRefer
 
 from fake_the_spire.config import config
 
+logger = logging.getLogger('flask_app')
+
 
 class EndOfCombatReward(Floor):
     def __init__(self, game_state: dict, combat_type: str, potion_rewards: list[str] = None,
@@ -57,6 +59,10 @@ class EndOfCombatReward(Floor):
             self.take_relic(action[1:])
         elif action[0] == 'drop':
             self.drop_potion(action[1:])
+        else:
+            logger.info(f'Invalid action: {action}')
+
+        logger.debug(f'Updated state: {self.to_dict()}')
 
     def take_card(self, action: list[str]):
         card = action[0]

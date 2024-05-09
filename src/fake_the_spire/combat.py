@@ -4,7 +4,7 @@ from fake_the_spire import FloorOver, GameOver
 from fake_the_spire.floor import Floor
 from fake_the_spire.references import EnemyReference, CardReference, CombatReference
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('flask_app')
 
 
 class Combat(Floor):
