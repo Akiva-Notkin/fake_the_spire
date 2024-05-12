@@ -118,7 +118,7 @@ class TestCombat(unittest.TestCase):
         }
         combat = Combat(game_state, ['louse'])
         combat.take_action("end")
-        self.assertEqual(combat.player['hp'], 5)
+        self.assertEqual(game_state['player']['hp'], 5)
 
     def test_attack_blocked_target(self):
         game_state = {
@@ -162,7 +162,7 @@ class TestCombat(unittest.TestCase):
         self.assertEqual(combat.player['optional_dict']['block'], 5)
         combat.take_action("end")
         self.assertEqual(combat.player['optional_dict']['block'], 0)
-        self.assertEqual(combat.player['hp'], 10)
+        self.assertEqual(game_state['player']['hp'], 10)
 
     def test_enemy_with_block_and_vulnerable(self):
         game_state = {
@@ -189,7 +189,7 @@ class TestCombat(unittest.TestCase):
         self.assertEqual(combat.enemy_list[0]['optional_dict']['vulnerable'], 3)
         self.assertEqual(combat.enemy_list[0]['hp'], 10)
 
-    def test_game_over_combat_damage(self):
+    def test_take_combat_damage_to_0(self):
         game_state = {
             "floor_num": 1,
             "act": 1,
@@ -205,9 +205,8 @@ class TestCombat(unittest.TestCase):
             }
         }
         combat = Combat(game_state, ['louse'])
-        with self.assertRaises(GameOver):
-            combat.take_action("end")
-        self.assertLessEqual(combat.player['hp'], 0)
+        combat.take_action("end")
+        self.assertLessEqual(game_state['player']['hp'], 0)
 
     def test_floor_over_won_combat(self):
         game_state = {

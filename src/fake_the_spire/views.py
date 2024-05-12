@@ -1,10 +1,12 @@
 from fake_the_spire.game import Game
 from fake_the_spire import GameOver, FloorOver
-from flask import jsonify, Flask, request
+from fake_the_spire.condition_based_file_handler import setup_logging
 
+from flask import jsonify, Flask, request
 import logging
 
 app = Flask(__name__)
+logger = setup_logging()
 
 
 class GameManager:
@@ -22,7 +24,6 @@ class GameManager:
 
     def reset_game(self):
         self.current_game = Game('character')
-
 
 @app.route('/play_game', methods=['POST'])
 def play_game():
@@ -48,16 +49,16 @@ def play_game():
         valid_action = game.validate_action(action)
         options = game.current_options
         game_state = game.to_dict()
-        # print(game_state)
-        # print(options)
         if not valid_action:
             return jsonify({"error": "Invalid action", "game": game_state, "options": options}), 400
         try:
-            logging.info(f"game_state: {game_state}")
-            logging.info(f"options: {options}")
-            logging.info(f"action: {action}")
+            logger.info(f"game_state: {game_state}")
+            logger.info(f"options: {options}")
+            logger.info(f"action: {action}")
             game.action_initiate(action)
         except GameOver as ge:
+            logger.info(f"GameOver: {ge} "
+                        f"game_state: {game_state}")
             return jsonify({"game_over": str(ge), "game": game_state}), 200
         except FloorOver:
             pass
