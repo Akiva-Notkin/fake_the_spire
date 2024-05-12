@@ -145,12 +145,14 @@ class TestShop(unittest.TestCase):
         }
         shop = Shop(game_state)
         options, _ = shop.get_new_options()
-        while len(options) != 1 and options[0] != 'end':
+        while options[0] != 'end':
             options_minus_end = options[:-1]
             shop.take_action(random.choice(options_minus_end))
             options, _ = shop.get_new_options()
         with self.assertRaises(FloorOver):
             shop.take_action('end')
+        self.assertEqual(len(game_state['player']['potions']), 2)
+        self.assertEqual(len(game_state['player']['relics']), 3)
 
     def test_remove_random_card(self):
         game_state = {
@@ -183,6 +185,9 @@ class TestShop(unittest.TestCase):
         shop.take_action(f"remove {random_card}")
         self.assertEqual(game_state['player']['deck'][random_card], 4)
         self.assertEqual(game_state['player']['gold'], 925)
+        self.assertEqual(game_state['environment_modifiers']['previous_removes'], 1)
+        new_choices = shop.get_new_options()
+        self.assertNotIn('remove_card', new_choices)
 
     def test_remove_smiling_mask(self):
         game_state = {
@@ -215,6 +220,8 @@ class TestShop(unittest.TestCase):
         shop.take_action(f"remove {random_card}")
         self.assertEqual(game_state['player']['deck'][random_card], 4)
         self.assertEqual(game_state['player']['gold'], 950)
+        new_choices = shop.get_new_options()
+        self.assertNotIn('remove_card', new_choices)
 
     def test_remove_random_previous_removes(self):
         game_state = {
@@ -247,3 +254,6 @@ class TestShop(unittest.TestCase):
         shop.take_action(f"remove {random_card}")
         self.assertEqual(game_state['player']['deck'][random_card], 4)
         self.assertEqual(game_state['player']['gold'], 850)
+        self.assertEqual(game_state['environment_modifiers']['previous_removes'], 4)
+        new_choices = shop.get_new_options()
+        self.assertNotIn('remove_card', new_choices)

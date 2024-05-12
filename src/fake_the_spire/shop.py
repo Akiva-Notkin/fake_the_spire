@@ -21,7 +21,9 @@ class Shop(Floor):
         self.removed_this_shop = False
 
     def get_new_options(self) -> (list[str], int):
-        super().get_new_options()
+        options = super().get_new_options()
+        if options is not None:
+            return options
         options = []
         for action_type, shop_item_list in self.shop.items():
             for (shop_item, cost) in shop_item_list:
