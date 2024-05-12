@@ -71,10 +71,6 @@ class EndOfCombatReward(Floor):
     def take_potion(self, action: list[str]):
         potion = action[0]
         self.game_state['player']['potions'].append(potion)
-        if len(self.game_state['player']['potions']) > self.game_state['player']['max_potions']:
-            self.should_drop_potion = True
-        else:
-            self.should_drop_potion = False
         del self.rewards_dict['potions']
 
     def take_relic(self, action: list[str]):
