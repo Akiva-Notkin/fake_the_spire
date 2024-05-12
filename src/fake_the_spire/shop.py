@@ -17,7 +17,6 @@ class Shop(Floor):
         self.floor_type = "shop"
         self.game_state = game_state
         self.shop = self.generate_base_shop()
-        self.should_drop_potion = False
         self.removed_this_shop = False
 
     def get_new_options(self) -> (list[str], int):
@@ -105,10 +104,6 @@ class Shop(Floor):
     def take_potion(self, action: list[str]):
         potion = action[0]
         self.game_state['player']['potions'].append(potion)
-        if len(self.game_state['player']['potions']) > self.game_state['player']['max_potions']:
-            self.should_drop_potion = True
-        else:
-            self.should_drop_potion = False
         self.remove_from_shop(shop_type='potions', reference_name=potion)
 
     def take_relic(self, action: list[str]):
