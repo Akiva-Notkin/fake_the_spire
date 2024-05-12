@@ -6,3 +6,7 @@ class = "ironclad"
 [relics.burning_blood]
 rarity = "base"
 class = "ironclad"
+
+[relics.white_beast_statue]
+rarity = "uncommon"
+class = "any"

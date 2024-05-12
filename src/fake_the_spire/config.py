@@ -25,5 +25,35 @@ class Config:
 
     POTION_REWARD_CHANGE = .1
 
+    UNKNOWN_ROOM_HALLWAY_CHANGE = .1
+    UNKNOWN_ROOM_SHOP_CHANGE = .03
+    UNKNOWN_ROOM_TREASURE_CHANGE = .02
+
+    SHOP_BASE_CARD_RARITY_DISTRIBUTION = {'rare': .09, 'uncommon': .37, 'common': .54}
+    ELITE_BASE_CARD_RARITY_DISTRIBUTION = {'rare': .1, 'uncommon': .4, 'common': .5}
+    HALLWAY_BASE_CARD_RARITY_DISTRIBUTION = {'rare': .03, 'uncommon': .37, 'common': .6}
+    BOSS_BASE_CARD_RARITY_DISTRIBUTION = {'rare': 1., 'uncommon': 0., 'common': 0.}
+
+    SHOP_CARD_PRICE_VARIANCE = .1
+    SHOP_CARD_PRICE_DICT = {'rare': 150, 'uncommon': 75, 'common': 50, 'base': 50}
+    SHOP_COLORLESS_CARD_PREMIUM = .2
+    SHOP_ON_SALE_CARD_AMOUNT = 1
+    SHOP_ON_SALE_CARD_COST_CHANGE = 1.2
+
+    SHOP_RELIC_PRICE_VARIANCE = .05
+    SHOP_RELIC_PRICE_DICT = {'rare': 300, 'uncommon': 250, 'common': 150, 'shop': 150, 'base': 150}
+
+    SHOP_POTION_PRICE_VARIANCE = .05
+    SHOP_POTION_PRICE_DICT = {'rare': 100, 'uncommon': 75, 'common': 50}
+
+    SHOP_BASE_REMOVAL_PRICE = 75
+    SHOP_COST_INCREASE_PER_REMOVAL = 25
+
+    HALLWAY_ENCOUNTER_GOLD_DROP = 15
+    ELITE_ENCOUNTER_GOLD_DROP = 30
+    BOSS_ENCOUNTER_GOLD_DROP = 100
+    ENCOUNTER_GOLD_DROP_VARIANCE = 5
+
+
 
 config = Config()

@@ -17,8 +17,13 @@ class Game:
                            'player': {'hp': 75, 'max_hp': 75, 'max_energy': 3,
                                       'deck': {'strike': 5, 'bash': 1, 'defend': 4},
                                       'potions': [], 'max_potions': 2,
-                                      'relics': ['burning_blood']},
-                           'potion_reward_chance': 0.4,
+                                      'relics': ['burning_blood'], 'gold': 99},
+                           'environment_modifiers': {
+                               'potion_reward_chance': 0.4,
+                               'card_reward_offset': -5,
+                               'unknown_room_probability_dict':
+                                   {'hallway': .1, 'treasure': .02, 'shop': .03}},
+                               'previous_removes': 0
                            }
         self.current_options = []
         self.current_options_amount = 0

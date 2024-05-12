@@ -58,7 +58,7 @@ class CardReference:
         return cards
 
     def get_random_card(self) -> list[str]:
-        return random.choice(list(self.all_cards['cards'].keys()))
+        return random.choice(list(self.all_cards['cards'].items()))
 
 
 class PotionReference:
@@ -79,7 +79,8 @@ class PotionReference:
         self.all_potions = toml.load(potion_toml)
 
     def get_random_potion(self) -> list[str]:
-        return random.choice(list(self.all_potions['potions'].keys()))
+        return random.choice(list(self.all_potions['potions'].items()))
+
 
 class RelicReference:
     _instance = None
@@ -99,7 +100,8 @@ class RelicReference:
         self.all_relics = toml.load(relic_toml)
 
     def get_random_relic(self) -> list[str]:
-        return random.choice(list(self.all_relics['relics'].keys()))
+        return random.choice(list(self.all_relics['relics'].items()))
+
 
 class CombatReference:
     _instance = None
