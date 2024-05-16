@@ -44,6 +44,7 @@ class EndOfCombatReward(Floor):
     def remove_from_current_floor(self, removal_type: str, removal_key: str):
         del self.rewards_dict[removal_type]
 
+
     def to_dict(self):
         return {'rewards': self.rewards_dict}
 
