@@ -41,42 +41,9 @@ class EndOfCombatReward(Floor):
         options.append('end')
         return options, 1
 
-    def take_action(self, action: str):
-        logger.debug(f'Action: {action}')
-        logger.debug(f'Old state: {self.to_dict()}')
-        action = action.split(' ')
-        if action[0] == 'end':
-            raise FloorOver
-        elif action[0] == 'cards':
-            self.take_card(action[1:])
-        elif action[0] == 'potions':
-            self.take_potion(action[1:])
-        elif action[0] == 'relics':
-            self.take_relic(action[1:])
-        elif action[0] == 'drop':
-            self.drop_potion(action[1:])
-        else:
-            logger.info(f'Invalid action: {action}')
+    def remove_from_current_floor(self, removal_type: str, removal_key: str):
+        del self.rewards_dict[removal_type]
 
-        logger.debug(f'Updated state: {self.to_dict()}')
-
-    def take_card(self, action: list[str]):
-        card = action[0]
-        if card in self.game_state['player']['deck']:
-            self.game_state['player']['deck'][card] += 1
-        else:
-            self.game_state['player']['deck'][card] = 1
-        del self.rewards_dict['cards']
-
-    def take_potion(self, action: list[str]):
-        potion = action[0]
-        self.game_state['player']['potions'].append(potion)
-        del self.rewards_dict['potions']
-
-    def take_relic(self, action: list[str]):
-        relic = action[0]
-        self.game_state['player']['relics'].append(relic)
-        del self.rewards_dict['relics']
 
     def to_dict(self):
         return {'rewards': self.rewards_dict}

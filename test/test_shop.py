@@ -145,8 +145,8 @@ class TestShop(unittest.TestCase):
         }
         shop = Shop(game_state)
         options, _ = shop.get_new_options()
-        while options[0] != 'end':
-            options_minus_end = options[:-1]
+        while not (len(options) == 1 and options[0] == 'end'):
+            options_minus_end = [x for x in options if x != 'end']
             shop.take_action(random.choice(options_minus_end))
             options, _ = shop.get_new_options()
         with self.assertRaises(FloorOver):

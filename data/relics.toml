@@ -10,3 +10,11 @@ class = "ironclad"
 [relics.white_beast_statue]
 rarity = "uncommon"
 class = "any"
+
+[relics.du-vu_doll]
+rarity = "rare"
+class = "any"
+
+[relics.art_of_war]
+rarity = "common"
+class = "any"
