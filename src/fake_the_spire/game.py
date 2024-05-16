@@ -17,7 +17,8 @@ class Game:
                            'player': {'hp': 75, 'max_hp': 75, 'max_energy': 3,
                                       'deck': {'strike': 5, 'bash': 1, 'defend': 4},
                                       'potions': [], 'max_potions': 2,
-                                      'relics': ['burning_blood'], 'gold': 99},
+                                      'relics': ['burning_blood'], 'gold': 99,
+                                      'keys': {'green': False, 'blue': False, 'red': False}},
                            'environment_modifiers': {
                                'potion_reward_chance': 0.4,
                                'card_reward_offset': -5,
@@ -27,8 +28,8 @@ class Game:
                            }
         self.current_options = []
         self.current_options_amount = 0
-        self.enemy_reference = EnemyReference(config.ENEMY_TOML, reset=True)
-        self.card_reference = CardReference(config.CARD_TOML, reset=True)
+        self.enemy_reference = EnemyReference(config.ENEMY_TOML, "enemies", reset=True)
+        self.card_reference = CardReference(config.CARD_TOML, "cards", reset=True)
         self.initialize_game()
 
     def initialize_game(self):

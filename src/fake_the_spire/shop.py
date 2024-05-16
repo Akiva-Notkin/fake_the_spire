@@ -15,7 +15,6 @@ class Shop(Floor):
     def __init__(self, game_state: dict):
         super().__init__(game_state)
         self.floor_type = "shop"
-        self.game_state = game_state
         self.shop = self.generate_base_shop()
         self.removed_this_shop = False
 
@@ -34,30 +33,15 @@ class Shop(Floor):
         return options, 1
 
     def to_dict(self):
-        ...
+        return self.shop
 
     def take_action(self, action: str):
-        logger.debug(f'Action: {action}')
-        logger.debug(f'Old state: {self.to_dict()}')
-        action = action.split(' ')
-        if action[0] == 'end':
-            raise FloorOver
-        elif action[0] == 'cards':
-            self.take_card(action[1:])
-        elif action[0] == 'potions':
-            self.take_potion(action[1:])
-        elif action[0] == 'relics':
-            self.take_relic(action[1:])
-        elif action[0] == 'drop':
-            self.drop_potion(action[1:])
-        elif action[0] == 'remove':
-            self.remove_card(action[1:])
-        elif action[0] == 'remove_card':
-            self.remove_card_request()
-        else:
-            logger.info(f'Invalid action: {action}')
-
-        logger.debug(f'Updated state: {self.to_dict()}')
+        action = super().take_action(action)
+        if action is not None:
+            if action[0] == 'remove_card':
+                self.remove_card_request()
+            else:
+                logger.info(f'Invalid action: {action}')
 
     def generate_base_shop(self):
         shop = {"cards": self.generate_shop_cards() + self.generate_colorless_shop_cards(),
@@ -93,25 +77,7 @@ class Shop(Floor):
         return self.give_reference_cost(relic_options, rarity_to_cost_dict=config.SHOP_RELIC_PRICE_DICT,
                                         cost_variance=config.SHOP_RELIC_PRICE_VARIANCE)
 
-    def take_card(self, action: list[str]):
-        card = action[0]
-        if card in self.game_state['player']['deck']:
-            self.game_state['player']['deck'][card] += 1
-        else:
-            self.game_state['player']['deck'][card] = 1
-        self.remove_from_shop(shop_type='cards', reference_name=card)
-
-    def take_potion(self, action: list[str]):
-        potion = action[0]
-        self.game_state['player']['potions'].append(potion)
-        self.remove_from_shop(shop_type='potions', reference_name=potion)
-
-    def take_relic(self, action: list[str]):
-        relic = action[0]
-        self.game_state['player']['relics'].append(relic)
-        self.remove_from_shop(shop_type='relics', reference_name=relic)
-
-    def remove_from_shop(self, shop_type: str, reference_name: str):
+    def remove_from_current_floor(self, shop_type: str, reference_name: str):
         for i in range(len(self.shop[shop_type])):
             if reference_name == self.shop[shop_type][i][0]:
                 self.game_state['player']['gold'] -= self.shop[shop_type][i][1]

@@ -54,6 +54,13 @@ class Config:
     BOSS_ENCOUNTER_GOLD_DROP = 100
     ENCOUNTER_GOLD_DROP_VARIANCE = 5
 
+    CHEST_SIZE_PROBABILITY_WEIGHT_DICT = {'small': 3, 'medium': 2, 'large': 1}
+    CHEST_RELIC_RARITY_PROBABILITY_DICT = {'small': {'common': .75, 'uncommon': .25, 'rare': 0.},
+                                           'medium': {'common': .35, 'rare': .50, 'uncommon': .15},
+                                           'large': {'common': 0., 'rare': .75, 'uncommon': .25}}
+    CHEST_GOLD_CHANCE_DICT = {'small': .5, 'medium': .35, 'large': .5}
+    CHEST_GOLD_AMOUNT_DICT = {'small': 25, 'medium': 50, 'large': 75}
+    CHEST_GOLD_VARIANCE = .1
 
 
 config = Config()

@@ -11,7 +11,6 @@ class Combat(Floor):
     def __init__(self, game_state: dict, enemy_ids: list[str] = None, combat_type: str = "hallway"):
         super().__init__(game_state)
         self.floor_type = "combat"
-        self.game_state = game_state
         self.player = {'max_energy': game_state['player']['max_energy'], 'optional_dict': {}, 'hand': {}, 'energy': 0,
                        'draw_pile': self.generate_draw_pile(game_state['player']['deck']), 'discard_pile': {},
                        'potions': game_state['player']['potions']}

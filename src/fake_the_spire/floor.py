@@ -1,3 +1,9 @@
+import logging
+
+from fake_the_spire import FloorOver
+
+logger = logging.getLogger('flask_app')
+
 
 class Floor:
     def __init__(self, game_state: dict):
@@ -20,7 +26,25 @@ class Floor:
         ...
 
     def take_action(self, action: str):
-        ...
+        logger.debug(f'Action: {action}')
+        logger.debug(f'Old state: {self.to_dict()}')
+        action = action.split(' ')
+        if action[0] == 'end':
+            raise FloorOver
+        elif action[0] == 'cards':
+            self.take_card(action[1:])
+        elif action[0] == 'potions':
+            self.take_potion(action[1:])
+        elif action[0] == 'relics':
+            self.take_relic(action[1:])
+        elif action[0] == 'gold':
+            self.take_gold(action[1:])
+        elif action[0] == 'drop':
+            self.drop_potion(action[1:])
+        elif action[0] == 'remove':
+            self.remove_card(action[1:])
+        else:
+            return action
 
     def drop_potion(self, action: list[str]):
         potion = action[0]
@@ -36,5 +60,28 @@ class Floor:
                     del self.game_state['player']['deck'][card]
                     break
 
+    def take_relic(self, action: list[str]):
+        relic = action[0]
+        self.game_state['player']['relics'].append(relic)
+        self.remove_from_current_floor('relics', relic)
 
+    def take_card(self, action: list[str]):
+        card = action[0]
+        if card in self.game_state['player']['deck']:
+            self.game_state['player']['deck'][card] += 1
+        else:
+            self.game_state['player']['deck'][card] = 1
+        self.remove_from_current_floor('cards', card)
 
+    def take_potion(self, action: list[str]):
+        potion = action[0]
+        self.game_state['player']['potions'].append(potion)
+        self.remove_from_current_floor('potions', potion)
+
+    def take_gold(self, action: list[str]):
+        gold_amount = action[0]
+        self.game_state['player']['gold'] += int(gold_amount)
+        self.remove_from_current_floor('gold', gold_amount)
+
+    def remove_from_current_floor(self, removal_type: str, removal_key: str):
+        ...
