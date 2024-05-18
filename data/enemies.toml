@@ -2,7 +2,10 @@
 [enemies.louse]
 hp = 100
 max_hp = 100
-actions = [["attack 5", "player"]]
+action_probabilities = {'hit' = 1}
+action_choose_type = 'random'
+[enemies.louse.actions]
+hit = [['attack 5', 'player']]
 
 [enemies.shitty_louse]
 hp = 20
@@ -12,23 +15,47 @@ actions = [["attack 5", "player"]]
 [enemies.weakling]
 hp = 1
 max_hp = 1
-actions = [["attack 0", "player"]]
+action_probabilities = {'weak' = 1}
+action_choose_type = 'random'
+[enemies.weakling.actions]
+weak = [['attack 0', 'player']]
 
 [enemies.blockman]
 hp = 10
 max_hp = 10
-actions = [["apply block 10", "self"]]
+action_probabilities = {'block' = 1}
+action_choose_type = 'random'
+[enemies.blockman.actions]
+block = [['apply block 10', 'self']]
+
 
 [enemies.jaw_worm]
 hp = 10
 max_hp = 10
-actions = [["attack 5", "player"]]
+action_probabilities = {'bellow' = 0.45, 'thrash' = 0.3, 'chomp' = 0.25}
+action_max_consecutive = {'bellow' = 1, 'thrash' = 2, 'chomp' = 1}
+action_start_combat = 'chomp'
+action_choose_type = 'random'
+[enemies.jaw_worm.actions]
+bellow = [['apply strength 5', 'self'], ['apply block 9', 'self']]
+thrash = [['attack 7', 'player'], ['apply block 5', 'self']]
+chomp = [['attack 12', 'player']]
 
 [enemies.acid_slime_m]
 hp = 10
 max_hp = 10
 actions = [["attack 5", "player"]]
 
+[enemies.acid_slime_s]
+hp = 10
+max_hp = 10
+action_probabilities = {'lick' = 0.5, 'tackle' = 0.5}
+action_max_consecutive = {'lick' = 1, 'tackle' = 1}
+action_choose_type = 'random'
+action_start_combat = 'lick'
+[enemies.acid_slime_s.actions]
+lick = [['apply weak 1', 'player']]
+tackle = [['attack 4', 'player']]
 
 [enemies.acid_slime_l]
 hp = 15

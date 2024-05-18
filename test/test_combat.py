@@ -227,3 +227,32 @@ class TestCombat(unittest.TestCase):
         with self.assertRaises(FloorOver):
             combat.take_action("play strike_0 weakling")
         self.assertLessEqual(combat.enemy_list[0]['hp'], 0)
+
+    def test_small_acid_slime_combat(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "bash": 3,
+                    "defend": 2
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+        combat = Combat(game_state, ['acid_slime_s'])
+        self.assertTrue(combat.enemy_list[0]['intent'], 'lick')
+        combat.take_action("end")
+        self.assertEqual(combat.player['optional_dict']['weak'], 1)
+        self.assertTrue(combat.enemy_list[0]['intent'], 'tackle')
+        combat.take_action("end")
+        self.assertEqual(game_state['player']['hp'], 96)
+        self.assertTrue(combat.enemy_list[0]['intent'], 'lick')
+        combat.take_action("end")
+        self.assertEqual(combat.player['optional_dict']['weak'], 1)
+        self.assertTrue(combat.enemy_list[0]['intent'], 'tackle')
+        combat.take_action("end")
+        self.assertEqual(game_state['player']['hp'], 92)

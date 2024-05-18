@@ -1,4 +1,3 @@
-
 from fake_the_spire.floor import Floor
 
 

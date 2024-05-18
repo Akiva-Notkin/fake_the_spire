@@ -14,7 +14,6 @@ def generate_probability_list_from_probability_dict(probability_dict: dict) -> (
 
 
 class BaseReference:
-    # def generate_reference_from_dict(self, reference_dict: dict):
     _instance = None
 
     def __init__(self, entity_toml: Path, entity_name: str, reset: bool = False):
@@ -41,11 +40,6 @@ class BaseReference:
         return random.choice(potential_entities)
 
 
-
-
-
-
-
 class EnemyReference(BaseReference):
     @staticmethod
     def get_instance():
@@ -59,6 +53,7 @@ class EnemyReference(BaseReference):
             enemy_copy = self.all_entities[enemy_id].copy()
             enemy_copy['id'] = enemy_id
             enemy_copy['optional_dict'] = {}
+            enemy_copy['action_history'] = []
             all_enemies.append(enemy_copy)
         return all_enemies
 

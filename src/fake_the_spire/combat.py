@@ -2,7 +2,8 @@ import logging
 import random
 from fake_the_spire import FloorOver
 from fake_the_spire.floor import Floor
-from fake_the_spire.references import EnemyReference, CardReference, CombatReference
+from fake_the_spire.references import (EnemyReference, CardReference, CombatReference,
+                                       generate_probability_list_from_probability_dict)
 
 logger = logging.getLogger('flask_app')
 
@@ -36,6 +37,7 @@ class Combat(Floor):
         return {'player': self.player, 'enemy_list': self.enemy_list}
 
     def start_combat(self):
+        self.get_new_enemy_action(is_first_turn=True)
         self.start_turn()
 
     def take_action(self, action: str):
@@ -165,24 +167,57 @@ class Combat(Floor):
         self.player['energy'] = 0
         self.player['discard_pile'].update(self.player['hand'])
         self.player['hand'] = {}
+        self.end_of_turn_optional_dict_update()
         for enemy in self.enemy_list:
-            if enemy['hp'] >= 0:
-                enemy_action, target = random.choice(enemy['actions'])
-                self.take_action(f"{enemy_action} {enemy['id']} {'player' if target == 'player' else enemy['id']}")
-                for decriment_optional_key in ['vulnerable', 'weak']:
-                    if decriment_optional_key in enemy['optional_dict']:
-                        enemy['optional_dict'][decriment_optional_key] = (
-                            enemy['optional_dict'][decriment_optional_key] - 1)
-                        if enemy['optional_dict'][decriment_optional_key] < 0:
-                            enemy['optional_dict'][decriment_optional_key] = 0
-
-        for decriment_optional_key in ['vulnerable', 'weak']:
-            if decriment_optional_key in self.player['optional_dict']:
-                self.player['optional_dict'][decriment_optional_key] = (
-                        self.player['optional_dict'][decriment_optional_key] - 1)
-                if self.player['optional_dict'][decriment_optional_key] < 0:
-                    self.player['optional_dict'][decriment_optional_key] = 0
+            if enemy['hp'] > 0:
+                self.resolve_enemy_action(enemy)
         self.start_turn()
+
+    def resolve_enemy_action(self, enemy):
+        enemy_action = enemy['intent']
+        intent_action_list = enemy['actions'][enemy_action]
+        for intent_action, intent_target in intent_action_list:
+            self.take_action(f"{intent_action} {enemy['id']} {'player' if intent_target == 'player' else enemy['id']}")
+        enemy['action_history'].append(enemy_action)
+        self.get_new_enemy_action()
+
+    def get_new_enemy_action(self, is_first_turn: bool = False):
+        for enemy in self.enemy_list:
+            if is_first_turn:
+                if 'action_start_combat' in enemy:
+                    enemy['intent'] = enemy['action_start_combat']
+                    continue
+            if enemy['action_choose_type'] == 'random':
+                if len(enemy['action_history']) > 0:
+                    previous_action = enemy['action_history'][-1]
+                    previous_action_consecutive_amount = 0
+                    for action in enemy['action_history'][::-1]:
+                        if action == previous_action:
+                            previous_action_consecutive_amount += 1
+                        else:
+                            break
+
+                    valid_actions = {k: v for k,v in enemy['action_probabilities'].copy().items()
+                                     if 'action_max_consecutive' not in enemy or
+                                     k != previous_action or
+                                     enemy['action_max_consecutive'][k] < previous_action_consecutive_amount}
+                else:
+                    valid_actions = enemy['action_probabilities'].copy()
+
+                action_names, action_weights = generate_probability_list_from_probability_dict(
+                    valid_actions)
+                random_action = random.choices(action_names, weights=action_weights)
+                enemy['intent'] = random_action[0]
+
+    def end_of_turn_optional_dict_update(self):
+        alive_characters = [enemy for enemy in self.enemy_list if enemy['hp'] > 0] + [self.player]
+        for character in alive_characters:
+            for decrement_optional_key in ['vulnerable', 'weak']:
+                if decrement_optional_key in character['optional_dict']:
+                    character['optional_dict'][decrement_optional_key] = (
+                            character['optional_dict'][decrement_optional_key] - 1)
+                    if character['optional_dict'][decrement_optional_key] < 0:
+                        character['optional_dict'][decrement_optional_key] = 0
 
     def start_turn(self):
         for i in range(5):
