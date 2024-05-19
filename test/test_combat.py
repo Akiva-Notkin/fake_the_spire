@@ -40,7 +40,7 @@ class TestCombat(unittest.TestCase):
             }
         }
         combat = Combat(game_state, ['louse'])
-        combat.take_action(f"play strike_0 louse")
+        combat.take_action(f"play strike_0 louse_0")
         self.assertEqual(combat.enemy_list[0]['hp'], 94)
 
     def test_add_vuln_deal_damage_play_bash(self):
@@ -58,7 +58,7 @@ class TestCombat(unittest.TestCase):
             }
         }
         combat = Combat(game_state, ['louse'])
-        combat.take_action(f"play bash_0 louse")
+        combat.take_action(f"play bash_0 louse_0")
         self.assertEqual(combat.enemy_list[0]['hp'], 92)
         self.assertEqual(combat.enemy_list[0]['optional_dict']['vulnerable'], 2)
 
@@ -78,8 +78,8 @@ class TestCombat(unittest.TestCase):
             }
         }
         combat = Combat(game_state, ['louse'])
-        combat.take_action("play bash_0 louse")
-        combat.take_action("play strike_0 louse")
+        combat.take_action("play bash_0 louse_0")
+        combat.take_action("play strike_0 louse_0")
         self.assertEqual(combat.enemy_list[0]['hp'], 83)
         self.assertEqual(combat.enemy_list[0]['optional_dict']['vulnerable'], 2)
 
@@ -137,9 +137,9 @@ class TestCombat(unittest.TestCase):
         combat = Combat(game_state, ['blockman'])
         combat.take_action("end")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 10)
-        combat.take_action("play strike_0 blockman")
+        combat.take_action("play strike_0 blockman_0")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 4)
-        combat.take_action("play strike_1 blockman")
+        combat.take_action("play strike_1 blockman_0")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 0)
         self.assertEqual(combat.enemy_list[0]['hp'], 8)
 
@@ -180,11 +180,11 @@ class TestCombat(unittest.TestCase):
         }
         combat = Combat(game_state, ['blockman'])
         combat.take_action("end")
-        combat.take_action("play bash_0 blockman")
+        combat.take_action("play bash_0 blockman_0")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 2)
         self.assertEqual(combat.enemy_list[0]['optional_dict']['vulnerable'], 2)
         combat.take_action("end")
-        combat.take_action("play bash_0 blockman")
+        combat.take_action("play bash_0 blockman_0")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 0)
         self.assertEqual(combat.enemy_list[0]['optional_dict']['vulnerable'], 3)
         self.assertEqual(combat.enemy_list[0]['hp'], 10)
@@ -225,7 +225,7 @@ class TestCombat(unittest.TestCase):
         }
         combat = Combat(game_state, ['weakling'])
         with self.assertRaises(FloorOver):
-            combat.take_action("play strike_0 weakling")
+            combat.take_action("play strike_0 weakling_0")
         self.assertLessEqual(combat.enemy_list[0]['hp'], 0)
 
     def test_small_acid_slime_combat(self):
@@ -256,3 +256,35 @@ class TestCombat(unittest.TestCase):
         self.assertTrue(combat.enemy_list[0]['intent'], 'tackle')
         combat.take_action("end")
         self.assertEqual(game_state['player']['hp'], 92)
+
+    def test_gremlin_nob_combat(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "defend": 5
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+        combat = Combat(game_state, ['gremlin_nob'])
+        self.assertTrue(combat.enemy_list[0]['intent'], 'bellow')
+        combat.take_action("end")
+        self.assertEqual(combat.enemy_list[0]['optional_dict']['enrage'], 3)
+        self.assertTrue(combat.enemy_list[0]['intent'], 'skull_bash')
+        combat.take_action("end")
+        self.assertEqual(game_state['player']['hp'], 92)
+        self.assertEqual(combat.player['optional_dict']['vulnerable'], 2)
+        self.assertTrue(combat.enemy_list[0]['intent'], 'rush')
+        combat.take_action("end")
+        self.assertEqual(game_state['player']['hp'], 68)
+        combat.take_action("play defend_0")
+        self.assertEqual(combat.enemy_list[0]['optional_dict']['strength'], 3)
+        self.assertTrue(combat.enemy_list[0]['intent'], 'rush')
+        combat.take_action("end")
+        self.assertEqual(game_state['player']['hp'], 45)
+        self.assertTrue(combat.enemy_list[0]['intent'], 'skull_bash')

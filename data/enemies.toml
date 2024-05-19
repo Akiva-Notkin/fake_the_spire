@@ -1,73 +1,102 @@
 [enemies]
 [enemies.louse]
-hp = 100
 max_hp = 100
-action_probabilities = {'hit' = 1}
-action_choose_type = 'random'
+stage_start_combat = "base"
+[enemies.louse.base]
+action_probabilities = {"hit" = 1}
+action_choose_type = "random"
 [enemies.louse.actions]
-hit = [['attack 5', 'player']]
-
-[enemies.shitty_louse]
-hp = 20
-max_hp = 20
-actions = [["attack 5", "player"]]
+hit = [["attack 5", "player"]]
 
 [enemies.weakling]
-hp = 1
 max_hp = 1
-action_probabilities = {'weak' = 1}
-action_choose_type = 'random'
+stage_start_combat = "base"
+[enemies.weakling.base]
+action_probabilities = {"weak" = 1}
+action_choose_type = "random"
 [enemies.weakling.actions]
-weak = [['attack 0', 'player']]
+weak = [["attack 0", "player"]]
 
 [enemies.blockman]
-hp = 10
 max_hp = 10
-action_probabilities = {'block' = 1}
-action_choose_type = 'random'
+stage_start_combat = "base"
+[enemies.blockman.base]
+action_probabilities = {"block" = 1}
+action_choose_type = "random"
 [enemies.blockman.actions]
-block = [['apply block 10', 'self']]
+block = [["apply block 10", "self"]]
 
 
 [enemies.jaw_worm]
-hp = 10
 max_hp = 10
-action_probabilities = {'bellow' = 0.45, 'thrash' = 0.3, 'chomp' = 0.25}
-action_max_consecutive = {'bellow' = 1, 'thrash' = 2, 'chomp' = 1}
-action_start_combat = 'chomp'
-action_choose_type = 'random'
+action_probabilities = {"bellow" = 0.45, "thrash" = 0.3, "chomp" = 0.25}
+action_max_consecutive = {"bellow" = 1, "thrash" = 2, "chomp" = 1}
+action_start_combat = "chomp"
+action_choose_type = "random"
 [enemies.jaw_worm.actions]
-bellow = [['apply strength 5', 'self'], ['apply block 9', 'self']]
-thrash = [['attack 7', 'player'], ['apply block 5', 'self']]
-chomp = [['attack 12', 'player']]
+bellow = [["apply strength 5", "self"], ["apply block 9", "self"]]
+thrash = [["attack 7", "player"], ["apply block 5", "self"]]
+chomp = [["attack 12", "player"]]
 
 [enemies.acid_slime_m]
-hp = 10
 max_hp = 10
 actions = [["attack 5", "player"]]
 
 [enemies.acid_slime_s]
-hp = 10
 max_hp = 10
-action_probabilities = {'lick' = 0.5, 'tackle' = 0.5}
-action_max_consecutive = {'lick' = 1, 'tackle' = 1}
-action_choose_type = 'random'
-action_start_combat = 'lick'
+stage_start_combat = "base"
+action_start_combat = "lick"
+[enemies.acid_slime_s.base]
+action_probabilities = {"lick" = 0.5, "tackle" = 0.5}
+action_max_consecutive = {"lick" = 1, "tackle" = 1}
+action_choose_type = "random"
 [enemies.acid_slime_s.actions]
-lick = [['apply weak 1', 'player']]
-tackle = [['attack 4', 'player']]
+lick = [["apply weak 1", "player"]]
+tackle = [["attack 4", "player"]]
 
 [enemies.acid_slime_l]
-hp = 15
 max_hp = 15
 actions = [["attack 5", "player"]]
 
-[enemies.gremlin_nob]
-hp = 20
-max_hp = 20
-actions = [["attack 5", "player"]]
-
 [enemies.the_guardian]
-hp = 25
-max_hp = 25
-actions = [["attack 5", "player"]]
+max_hp = 250
+stage_start_combat = "offensive_mode"
+[enemies.the_guardian.offensive_mode]
+stage_action_choose_type = ""
+[enemies.the_guardian.actions]
+charge_up = [["apply block 5", "self"]]
+fierce_bash = [["attack 36", "player"]]
+vent_steam = [["apply weak 2", "player"], ["apply vulnerable 2", "player"]]
+whirlwind = [["attack 5", "player"], ["attack 5", "player"], ["attack 5", "player"], ["attack 5", "player"]]
+close_up = [["apply sharp_hide 4", "self"]]
+roll_attack = [["attack 10", "player"]]
+twin_slam = [["stage offensive_mode", "self"], ["attack 8", "player"], ["attack 8", "player"], ["apply sharp_hide -4"]]
+
+#
+#[enemies.lagavulin]
+#max_hp = 112
+#action_choose_type = "stage"
+#[enemies.lagavulin]
+#action_order = ["siphon"]
+
+[enemies.sentry]
+max_hp = 40
+stage_start_combat = "base"
+[enemies.sentry.base]
+action_choose_type = "ordered"
+action_order = ["beam", "bolt"]
+[enemies.sentry.actions]
+beam = [["attack 10", "player"]]
+bolt = [["add discard daze"], ["add discard daze"], ["add discard daze"]]
+
+[enemies.gremlin_nob]
+max_hp = 85
+stage_start_combat = "base"
+action_start_combat = "bellow"
+[enemies.gremlin_nob.base]
+action_choose_type = "ordered"
+action_order = ["skull_bash", "rush", "rush"]
+[enemies.gremlin_nob.actions]
+bellow = [["apply enrage 3", "self"]]
+rush = [["attack 16", "player"]]
+skull_bash = [["attack 8", "player"], ["apply vulnerable 2", "player"]]

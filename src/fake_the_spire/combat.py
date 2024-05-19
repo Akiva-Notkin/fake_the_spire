@@ -77,6 +77,8 @@ class Combat(Floor):
         else:
             attacker = self.get_enemy_by_id(attacker_val)
 
+        if 'strength' in attacker['optional_dict']:
+            attack_value += attacker['optional_dict']['strength']
         if 'weak' in attacker['optional_dict']:
             attack_value *= 0.75
         if 'vulnerable' in target['optional_dict']:
@@ -133,6 +135,11 @@ class Combat(Floor):
                 for target in target_list:
                     self.take_action(f"{card_action} player {target['id']}")
 
+        if self.player['hand'][card_id]['type'] == 'skill':
+            for enemy in self.enemy_list:
+                if 'enrage' in enemy['optional_dict']:
+                    self.take_action(f"apply strength {enemy['optional_dict']['enrage']} {enemy['id']} {enemy['id']}")
+
         self.take_action(f'gain_energy -{self.player["hand"][card_id]["energy_cost"]}')
         self.player['discard_pile'][card_id] = self.player['hand'][card_id]
         self.player['hand'].pop(card_id)
@@ -183,31 +190,46 @@ class Combat(Floor):
 
     def get_new_enemy_action(self, is_first_turn: bool = False):
         for enemy in self.enemy_list:
+            chose_first_intent = False
             if is_first_turn:
+                enemy['current_stage'] = enemy['stage_start_combat']
                 if 'action_start_combat' in enemy:
                     enemy['intent'] = enemy['action_start_combat']
-                    continue
-            if enemy['action_choose_type'] == 'random':
-                if len(enemy['action_history']) > 0:
-                    previous_action = enemy['action_history'][-1]
-                    previous_action_consecutive_amount = 0
-                    for action in enemy['action_history'][::-1]:
-                        if action == previous_action:
-                            previous_action_consecutive_amount += 1
-                        else:
-                            break
+                    chose_first_intent = True
+            if not chose_first_intent:
+                current_stage_dict = enemy[enemy['current_stage']]
+                if current_stage_dict['action_choose_type'] == 'random':
+                    if len(enemy['action_history']) > 0:
+                        previous_action = enemy['action_history'][-1]
+                        previous_action_consecutive_amount = 0
+                        for action in enemy['action_history'][::-1]:
+                            if action == previous_action:
+                                previous_action_consecutive_amount += 1
+                            else:
+                                break
 
-                    valid_actions = {k: v for k,v in enemy['action_probabilities'].copy().items()
-                                     if 'action_max_consecutive' not in enemy or
-                                     k != previous_action or
-                                     enemy['action_max_consecutive'][k] < previous_action_consecutive_amount}
-                else:
-                    valid_actions = enemy['action_probabilities'].copy()
+                        valid_actions = {k: v for k,v in current_stage_dict['action_probabilities'].copy().items()
+                                         if 'action_max_consecutive' not in current_stage_dict or
+                                         k != previous_action or
+                                         current_stage_dict['action_max_consecutive'][k] <
+                                         previous_action_consecutive_amount}
+                    else:
+                        valid_actions = current_stage_dict['action_probabilities'].copy()
 
-                action_names, action_weights = generate_probability_list_from_probability_dict(
-                    valid_actions)
-                random_action = random.choices(action_names, weights=action_weights)
-                enemy['intent'] = random_action[0]
+                    action_names, action_weights = generate_probability_list_from_probability_dict(
+                        valid_actions)
+                    random_action = random.choices(action_names, weights=action_weights)
+                    enemy['intent'] = random_action[0]
+                elif current_stage_dict['action_choose_type'] == 'ordered':
+                    if 'current_stage_action_key' in enemy:
+                        current_stage_action_key = enemy['current_stage_action_key']
+                    else:
+                        current_stage_action_key = 0
+                    enemy['intent'] = current_stage_dict['action_order'][current_stage_action_key]
+                    if current_stage_action_key == len(current_stage_dict['action_order']) - 1:
+                        enemy['current_stage_action_key'] = 0
+                    else:
+                        enemy['current_stage_action_key'] = current_stage_action_key + 1
 
     def end_of_turn_optional_dict_update(self):
         alive_characters = [enemy for enemy in self.enemy_list if enemy['hp'] > 0] + [self.player]

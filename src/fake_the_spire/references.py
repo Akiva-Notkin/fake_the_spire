@@ -49,9 +49,11 @@ class EnemyReference(BaseReference):
 
     def generate_enemies_by_id_list(self, id_list: list[str]) -> list[dict]:
         all_enemies = []
-        for enemy_id in id_list:
+        for i in range(len(id_list)):
+            enemy_id = id_list[i]
             enemy_copy = self.all_entities[enemy_id].copy()
-            enemy_copy['id'] = enemy_id
+            enemy_copy['id'] = f"{enemy_id}_{i}"
+            enemy_copy['hp'] = enemy_copy['max_hp']
             enemy_copy['optional_dict'] = {}
             enemy_copy['action_history'] = []
             all_enemies.append(enemy_copy)
