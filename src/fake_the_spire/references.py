@@ -1,5 +1,6 @@
 import toml
 import random
+import uuid
 from pathlib import Path
 from fake_the_spire.config import config
 
@@ -47,15 +48,20 @@ class EnemyReference(BaseReference):
             EnemyReference._instance = EnemyReference(config.ENEMY_TOML, 'enemies')
         return EnemyReference._instance
 
+    def generate_enemy_by_id(self, enemy_id: str) -> dict:
+        enemy_copy = self.all_entities[enemy_id].copy()
+        enemy_copy['id'] = f"{enemy_id}_{uuid.uuid4()}"
+        enemy_copy['hp'] = enemy_copy['max_hp']
+        if 'optional_dict' not in enemy_copy:
+            enemy_copy['optional_dict'] = {}
+        enemy_copy['action_history'] = []
+        enemy_copy['stage'] = enemy_copy['stage_start_combat']
+        return enemy_copy
+
     def generate_enemies_by_id_list(self, id_list: list[str]) -> list[dict]:
         all_enemies = []
-        for i in range(len(id_list)):
-            enemy_id = id_list[i]
-            enemy_copy = self.all_entities[enemy_id].copy()
-            enemy_copy['id'] = f"{enemy_id}_{i}"
-            enemy_copy['hp'] = enemy_copy['max_hp']
-            enemy_copy['optional_dict'] = {}
-            enemy_copy['action_history'] = []
+        for enemy_id in id_list:
+            enemy_copy = self.generate_enemy_by_id(enemy_id)
             all_enemies.append(enemy_copy)
         return all_enemies
 

@@ -33,3 +33,10 @@ actions = ["apply strength 2"]
 target = "self"
 energy_cost = 1
 rarity = "uncommon"
+
+[cards.big_ol_hammer]
+type = "attack"
+actions = ["attack 20"]
+target = "enemy"
+energy_cost = 0
+rarity = "base"
