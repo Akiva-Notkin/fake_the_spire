@@ -102,10 +102,23 @@ class Shop(Floor):
 
     def generate_relics(self):
         relic_reference = RelicReference.get_instance()
-        relic_options = [relic_reference.get_single_entity_by_probability_dict('rarity',
-                                                                               config.RELIC_RARITY_DISTRIBUTION)
-                         for _ in range(2)]
-        shop_relic_option = random.choice(relic_reference.get_all_entities_by_search_list([('rarity', 'shop')]))
+        relic_options = []
+        for _ in range(2):
+            relic = relic_reference.get_single_entity_by_probability_dict('rarity',
+                                                                          config.RELIC_RARITY_DISTRIBUTION,
+                                                                          exclude_list=
+                                                                          self.game_state['environment_modifiers'][
+                                                                              'seen_relics'])
+            relic_options.append(relic)
+            self.game_state['environment_modifiers']['seen_relics'].append(relic[1]['name'])
+
+        shop_relic_option = random.choice(relic_reference.get_all_entities_by_search_list([('rarity', 'shop')],
+                                                                                          exclude_list=
+                                                                                          self.game_state[
+                                                                                              'environment_modifiers'][
+                                                                                              'seen_relics']))
+        self.game_state['environment_modifiers']['seen_relics'].append(shop_relic_option[1]['name'])
+
         relic_options.append(shop_relic_option)
         return self.give_reference_cost(relic_options, rarity_to_cost_dict=config.SHOP_RELIC_PRICE_DICT,
                                         cost_variance=config.SHOP_RELIC_PRICE_VARIANCE)

@@ -102,10 +102,12 @@ class EndOfCombatReward(Floor):
                                                                    config.POTION_RARITY_DISTRIBUTION)[0] for _ in range(1)]
         return potion_rewards
 
-    @staticmethod
-    def get_relic_rewards() -> list[str]:
+    def get_relic_rewards(self) -> list[str]:
         relic_reference = RelicReference.get_instance()
-        relic_rewards = [relic_reference.get_single_entity_by_probability_dict('rarity',
-                                                                               config.RELIC_RARITY_DISTRIBUTION)[0]
-                         for _ in range(1)]
-        return relic_rewards
+        relic_reward = relic_reference.get_single_entity_by_probability_dict('rarity',
+                                                                               config.RELIC_RARITY_DISTRIBUTION,
+                                                                               exclude_list=
+                                                                               self.game_state['environment_modifiers']
+                                                                               ['seen_relics'])
+        self.game_state['environment_modifiers']['seen_relics'].append(relic_reward[1]['name'])
+        return [relic_reward[0]]

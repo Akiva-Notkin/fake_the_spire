@@ -25,7 +25,8 @@ class Game:
                                'unknown_room_probability_dict':
                                    {'hallway': .1, 'treasure': .02, 'shop': .03}},
                                'previous_removes': 0,
-                               'color': 'red'
+                               'color': 'red',
+                               'seen_relics': []
                            }
         self.current_options = []
         self.current_options_amount = 0
