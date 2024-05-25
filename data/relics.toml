@@ -18,3 +18,7 @@ class = "any"
 [relics.art_of_war]
 rarity = "common"
 class = "any"
+
+[relics.chemical_x]
+rarity = "shop"
+class = "any"

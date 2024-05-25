@@ -67,10 +67,12 @@ class Floor:
 
     def take_card(self, action: list[str]):
         card = action[0]
-        if card in self.game_state['player']['deck']:
-            self.game_state['player']['deck'][card] += 1
+        last_underscore_index = card.rfind('_')
+        card_name = card[:last_underscore_index]
+        if card_name in self.game_state['player']['deck']:
+            self.game_state['player']['deck'][card_name] += 1
         else:
-            self.game_state['player']['deck'][card] = 1
+            self.game_state['player']['deck'][card_name] = 1
         self.remove_from_current_floor('cards', card)
 
     def take_potion(self, action: list[str]):

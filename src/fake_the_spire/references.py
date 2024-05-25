@@ -30,7 +30,7 @@ class BaseReference:
         for (entity_name, entity_dict) in self.all_entities.items():
             if all(search_keyword in entity_dict and entity_dict[search_keyword] in search_value
                    for (search_keyword, search_value) in search_list):
-                entities.append((entity_name, entity_dict))
+                entities.append((f"{entity_name}_{uuid.uuid4()}", entity_dict))
         return entities
 
     def get_single_entity_by_probability_dict(self, probability_keyword: str, probability_dict: dict):

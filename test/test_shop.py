@@ -33,7 +33,9 @@ class TestShop(unittest.TestCase):
         shop = Shop(game_state)
         random_card_option, cost = shop.shop['cards'][0]
         shop.take_action(f"cards {random_card_option}")
-        self.assertIn(random_card_option, game_state['player']['deck'].keys())
+        last_underscore_index = random_card_option.rfind('_')
+        card_name = random_card_option[:last_underscore_index]
+        self.assertIn(card_name, game_state['player']['deck'].keys())
         self.assertEqual(game_state['player']['gold'] + cost, 1000)
 
     def test_buy_potion(self):

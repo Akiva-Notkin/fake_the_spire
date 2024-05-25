@@ -3,3 +3,13 @@
 target = "self"
 actions = ["apply block 12"]
 rarity = "common"
+
+[potions.cultist_potion]
+target = "self"
+actions = ["apply ritual 1"]
+rarity = "rare"
+
+[potions.duplication_potion]
+target = "self"
+actions = ["apply duplication 1"]
+rarity = "uncommon"

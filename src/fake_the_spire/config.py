@@ -34,6 +34,10 @@ class Config:
     HALLWAY_BASE_CARD_RARITY_DISTRIBUTION = {'rare': .03, 'uncommon': .37, 'common': .6}
     BOSS_BASE_CARD_RARITY_DISTRIBUTION = {'rare': 1., 'uncommon': 0., 'common': 0.}
 
+    POTION_RARITY_DISTRIBUTION = {'rare': .1, 'uncommon': .25, 'common': .65}
+
+    RELIC_RARITY_DISTRIBUTION = {'rare': .17, 'uncommon': .33, 'common': .5}
+
     SHOP_CARD_PRICE_VARIANCE = .1
     SHOP_CARD_PRICE_DICT = {'rare': 150, 'uncommon': 75, 'common': 50, 'base': 50, 'curse': 0}
     SHOP_COLORLESS_CARD_PREMIUM = 1.2

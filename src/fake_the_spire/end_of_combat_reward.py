@@ -44,20 +44,13 @@ class EndOfCombatReward(Floor):
         options.append('end')
         return options, 1
 
-    def take_card(self, action: list[str]):
-        card = action[0]
-        last_underscore_index = card.rfind('_')
-        card_name = card[:last_underscore_index]
-        card_pack = f"cards_{card[last_underscore_index + 1:]}"
-        if card_name in self.game_state['player']['deck']:
-            self.game_state['player']['deck'][card_name] += 1
-        else:
-            self.game_state['player']['deck'][card_name] = 1
-        self.remove_from_current_floor('cards', card, card_pack)
-
-    def remove_from_current_floor(self, removal_type: str, removal_key: str, card_pack: str = None):
+    def remove_from_current_floor(self, removal_type: str, removal_key: str):
         if removal_type == 'cards':
-            removal_type = card_pack
+            for reward_key, reward_list in self.rewards_dict.items():
+                for card in reward_list:
+                    if card == removal_key:
+                        del self.rewards_dict[reward_key]
+                        return
         del self.rewards_dict[removal_type]
 
     def to_dict(self):
@@ -78,7 +71,7 @@ class EndOfCombatReward(Floor):
             card_rewards = self.generate_distinct_reward_card_list(3, rarity_dict)
             card_reward_list = []
             for card in card_rewards:
-                card_reward_list.append(f"{card[0]}_{i}")
+                card_reward_list.append(card[0])
             card_rewards_dict[f"cards_{i}"] = card_reward_list
 
         return card_rewards_dict
@@ -103,11 +96,16 @@ class EndOfCombatReward(Floor):
     @staticmethod
     def get_potion_rewards() -> list[str]:
         potion_reference = PotionReference.get_instance()
-        potion_rewards = [potion_reference.get_random_potion()[0] for _ in range(1)]
+
+        potion_rewards = [
+            potion_reference.get_single_entity_by_probability_dict('rarity',
+                                                                   config.POTION_RARITY_DISTRIBUTION)[0] for _ in range(1)]
         return potion_rewards
 
     @staticmethod
     def get_relic_rewards() -> list[str]:
         relic_reference = RelicReference.get_instance()
-        relic_rewards = [relic_reference.get_random_relic()[0] for _ in range(1)]
+        relic_rewards = [relic_reference.get_single_entity_by_probability_dict('rarity',
+                                                                               config.RELIC_RARITY_DISTRIBUTION)[0]
+                         for _ in range(1)]
         return relic_rewards
