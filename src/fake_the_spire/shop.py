@@ -51,13 +51,34 @@ class Shop(Floor):
 
     def generate_shop_cards(self):
         card_reference = CardReference.get_instance()
-        card_options = [card_reference.get_random_card() for _ in range(3)]
+        attack_cards = [card_reference.get_random_card_by_rarity_dict_and_modifier(
+            rarity_dict=config.SHOP_BASE_CARD_RARITY_DISTRIBUTION,
+            rarity_dict_modifier=self.game_state['environment_modifiers']['card_reward_offset'],
+            additional_search_criteria=[('type', 'attack')]
+        ) for _ in range(2)]
+        skill_cards = [card_reference.get_random_card_by_rarity_dict_and_modifier(
+            rarity_dict=config.SHOP_BASE_CARD_RARITY_DISTRIBUTION,
+            rarity_dict_modifier=self.game_state['environment_modifiers']['card_reward_offset'],
+            additional_search_criteria=[('type', 'skill')]
+        ) for _ in range(2)]
+        power_cards = [card_reference.get_random_card_by_rarity_dict_and_modifier(
+            rarity_dict=config.SHOP_BASE_CARD_RARITY_DISTRIBUTION,
+            rarity_dict_modifier=self.game_state['environment_modifiers']['card_reward_offset'],
+            additional_search_criteria=[('type', 'power')]
+        ) for _ in range(1)]
+        card_options = attack_cards + skill_cards + power_cards
         return self.give_reference_cost(card_options, rarity_to_cost_dict=config.SHOP_CARD_PRICE_DICT,
                                         cost_variance=config.SHOP_CARD_PRICE_VARIANCE)
 
     def generate_colorless_shop_cards(self):
         card_reference = CardReference.get_instance()
-        card_options = [card_reference.get_random_card() for _ in range(2)]
+        random_rare_colorless_card = random.choice(card_reference.get_all_entities_by_search_list([("rarity", "rare"),
+                                                                                     ("is_colorless", "true")]))
+        random_uncommon_colorless_card = random.choice(card_reference.get_all_entities_by_search_list(
+            [("rarity", "uncommon"), ("color", "colorless")]
+        ))
+
+        card_options = [random_rare_colorless_card, random_uncommon_colorless_card]
         rarity_to_cost_dict = config.SHOP_CARD_PRICE_DICT.copy()
         for rarity in rarity_to_cost_dict:
             rarity_to_cost_dict[rarity] = int(rarity_to_cost_dict[rarity] * config.SHOP_COLORLESS_CARD_PREMIUM)

@@ -35,7 +35,7 @@ class Config:
     BOSS_BASE_CARD_RARITY_DISTRIBUTION = {'rare': 1., 'uncommon': 0., 'common': 0.}
 
     SHOP_CARD_PRICE_VARIANCE = .1
-    SHOP_CARD_PRICE_DICT = {'rare': 150, 'uncommon': 75, 'common': 50, 'base': 50}
+    SHOP_CARD_PRICE_DICT = {'rare': 150, 'uncommon': 75, 'common': 50, 'base': 50, 'curse': 0}
     SHOP_COLORLESS_CARD_PREMIUM = .2
     SHOP_ON_SALE_CARD_AMOUNT = 1
     SHOP_ON_SALE_CARD_COST_CHANGE = 1.2

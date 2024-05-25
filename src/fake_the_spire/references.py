@@ -85,6 +85,23 @@ class CardReference(BaseReference):
     def get_random_card(self) -> list[str]:
         return random.choice(list(self.all_entities.items()))
 
+    def get_random_card_by_rarity_dict_and_modifier(self, rarity_dict: dict, rarity_dict_modifier: int,
+                                                    additional_search_criteria: list = None) -> dict:
+        rarity_dict_pct_modifier = rarity_dict_modifier / 100
+        rarity_dict_copy = rarity_dict.copy()
+        rarity_dict_copy['common'] -= rarity_dict_pct_modifier
+        rarity_dict_copy['rare'] += rarity_dict_pct_modifier
+        if rarity_dict_copy['rare'] < 0:
+            rarity_dict_copy['uncommon'] += rarity_dict_copy['rare']
+            rarity_dict_copy['rare'] = 0.
+        names, weights = generate_probability_list_from_probability_dict(rarity_dict_copy)
+        choice = random.choices(names, weights=weights)
+        search_list = [('rarity', choice)]
+        if additional_search_criteria is not None:
+            search_list.extend(additional_search_criteria)
+        potential_entities = self.get_all_entities_by_search_list(search_list)
+        return random.choice(potential_entities)
+
 
 class PotionReference(BaseReference):
     @staticmethod

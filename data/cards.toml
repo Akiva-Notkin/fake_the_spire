@@ -5,6 +5,7 @@ energy_cost = 1
 target = "enemy"
 actions = ["attack 6"]
 rarity = "base"
+color = "colorless"
 
 [cards.bash]
 type = "attack"
@@ -12,6 +13,7 @@ actions = ["attack 8", "apply vulnerable 2"]
 target = "enemy"
 energy_cost = 2
 rarity = "base"
+color = "colorless"
 
 [cards.defend]
 type = "skill"
@@ -19,6 +21,7 @@ actions = ["apply block 5"]
 energy_cost = 1
 target = "self"
 rarity = "base"
+color = "colorless"
 
 [cards.draw_two]
 type = "skill"
@@ -26,6 +29,7 @@ actions = ["draw", "draw"]
 target = "self"
 energy_cost = 1
 rarity = "base"
+color = "colorless"
 
 [cards.inflame]
 type = "power"
@@ -33,6 +37,15 @@ actions = ["apply strength 2"]
 target = "self"
 energy_cost = 1
 rarity = "uncommon"
+color = "red"
+
+[cards.iron_wave]
+type = "attack"
+actions = ["apply block 5", "attack 5"]
+target = "enemy"
+energy_cost = 1
+rarity = "common"
+color = "red"
 
 [cards.big_ol_hammer]
 type = "attack"
@@ -40,3 +53,29 @@ actions = ["attack 20"]
 target = "enemy"
 energy_cost = 0
 rarity = "base"
+color = "colorless"
+
+[cards.burn]
+type = "curse"
+rarity = "curse"
+actions = []
+unplayable = true
+target = "self"
+end_of_turn = ["blockable_damage 2"]
+color = "curse"
+
+[cards.swift_strike]
+type = "attack"
+rarity = "uncommon"
+actions = ["attack 7"]
+energy_cost = 0
+target = "enemy"
+color = "colorless"
+
+[cards.master_of_strategy]
+type = "skill"
+rarity = "rare"
+actions = ["draw", "draw", "draw"]
+target = "self"
+energy_cost = 0
+color = "colorless"

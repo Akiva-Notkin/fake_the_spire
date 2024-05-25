@@ -115,3 +115,34 @@ action_order = ["skull_bash", "rush", "rush"]
 bellow = [["apply enrage 3", "self"]]
 rush = [["attack 16", "player"]]
 skull_bash = [["attack 8", "player"], ["apply vulnerable 2", "player"]]
+
+[enemies.hexaghost]
+max_hp = 264
+stage_start_combat = "activate"
+[enemies.hexaghost.activate]
+action_choose_type = "ordered"
+action_order = ["activate", "divider"]
+[enemies.hexaghost.orbs]
+action_choose_type = "ordered"
+action_order = ["sear", "tackle", "sear", "inflame", "tackle", "sear", "inferno"]
+[enemies.hexaghost.actions]
+activate = []
+divider = [["apply divider_buff 1", "self"],
+    ["attack 1", "player"],
+    ["attack 1", "player"],
+    ["attack 1", "player"],
+    ["attack 1", "player"],
+    ["attack 1", "player"]]
+sear = [["attack 6", "player"], ["add discard burn", "player"], ["add discard burn", "player"]]
+tackle = [["attack 5", "player"], ["attack 5", "player"]]
+inflame = [["apply strength 3", "self"], ["apply block 12", "self"]]
+inferno = [
+    ["attack 3", "player"],
+    ["attack 3", "player"],
+    ["attack 3", "player"],
+    ["attack 3", "player"],
+    ["attack 3", "player"],
+    ["attack 3", "player"],
+    ["add discard burn", "player"], ["add discard burn", "player"], ["add discard burn", "player"],
+    ["apply burn_buff 1", "self"]
+]
