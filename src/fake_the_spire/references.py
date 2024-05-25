@@ -25,18 +25,25 @@ class BaseReference:
                 raise Exception("This class is a singleton!")
         self.all_entities = toml.load(entity_toml)[entity_name]
 
-    def get_all_entities_by_search_list(self, search_list: list) -> list:
+    def get_all_entities_by_search_list(self, search_list: list, exclude_list: list[str] = None) -> list:
         entities = []
         for (entity_name, entity_dict) in self.all_entities.items():
+            if exclude_list:
+                if entity_name in exclude_list:
+                    continue
             if all(search_keyword in entity_dict and entity_dict[search_keyword] in search_value
                    for (search_keyword, search_value) in search_list):
-                entities.append((entity_name, entity_dict))
+                entity_dict['name'] = entity_name
+                entities.append((f"{entity_name}_{uuid.uuid4()}", entity_dict))
         return entities
 
-    def get_single_entity_by_probability_dict(self, probability_keyword: str, probability_dict: dict):
+    def get_single_entity_by_probability_dict(self, probability_keyword: str, probability_dict: dict,
+                                              exclude_list: list[str] = None) -> tuple:
         names, weights = generate_probability_list_from_probability_dict(probability_dict)
         choice = random.choices(names, weights=weights)
-        potential_entities = self.get_all_entities_by_search_list([(probability_keyword, choice)])
+        potential_entities = self.get_all_entities_by_search_list([(probability_keyword, choice)], exclude_list)
+        if len(potential_entities) == 0:
+            return 'poop', {'name': 'poop', 'rarity': 'base'}
         return random.choice(potential_entities)
 
 
@@ -88,11 +95,12 @@ class CardReference(BaseReference):
                                                     additional_search_criteria: list = None) -> dict:
         rarity_dict_pct_modifier = rarity_dict_modifier / 100
         rarity_dict_copy = rarity_dict.copy()
-        rarity_dict_copy['common'] -= rarity_dict_pct_modifier
-        rarity_dict_copy['rare'] += rarity_dict_pct_modifier
-        if rarity_dict_copy['rare'] < 0:
-            rarity_dict_copy['uncommon'] += rarity_dict_copy['rare']
-            rarity_dict_copy['rare'] = 0.
+        if rarity_dict_copy['rare'] < 1.:
+            rarity_dict_copy['common'] -= rarity_dict_pct_modifier
+            rarity_dict_copy['rare'] += rarity_dict_pct_modifier
+            if rarity_dict_copy['rare'] < 0:
+                rarity_dict_copy['uncommon'] += rarity_dict_copy['rare']
+                rarity_dict_copy['rare'] = 0.
         potential_entities = []
         while len(potential_entities) == 0:
             names, weights = generate_probability_list_from_probability_dict(rarity_dict_copy)

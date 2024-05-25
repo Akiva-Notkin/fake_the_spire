@@ -26,14 +26,17 @@ class TestShop(unittest.TestCase):
                 'card_reward_offset': -5,
                 'unknown_room_probability_dict':
                     {'hallway': .1, 'treasure': .02, 'shop': .03},
-                'color': 'red'
+                'color': 'red',
+                'seen_relics': []
             }
         }
 
         shop = Shop(game_state)
         random_card_option, cost = shop.shop['cards'][0]
         shop.take_action(f"cards {random_card_option}")
-        self.assertIn(random_card_option, game_state['player']['deck'].keys())
+        last_underscore_index = random_card_option.rfind('_')
+        card_name = random_card_option[:last_underscore_index]
+        self.assertIn(card_name, game_state['player']['deck'].keys())
         self.assertEqual(game_state['player']['gold'] + cost, 1000)
 
     def test_buy_potion(self):
@@ -55,15 +58,18 @@ class TestShop(unittest.TestCase):
                 'card_reward_offset': -5,
                 'unknown_room_probability_dict':
                     {'hallway': .1, 'treasure': .02, 'shop': .03},
-                'color': 'red'
+                'color': 'red',
+                'seen_relics': []
 
             }
         }
 
         shop = Shop(game_state)
-        random_card_option, cost = shop.shop['potions'][0]
-        shop.take_action(f"potions {random_card_option}")
-        self.assertIn(random_card_option, game_state['player']['potions'])
+        random_potion_option, cost = shop.shop['potions'][0]
+        shop.take_action(f"potions {random_potion_option}")
+        last_underscore_index = random_potion_option.rfind('_')
+        random_potion_option = random_potion_option[:last_underscore_index]
+        self.assertIn(random_potion_option, game_state['player']['potions'])
         self.assertEqual(game_state['player']['gold'] + cost, 1000)
 
     def test_out_of_gold(self):
@@ -87,7 +93,8 @@ class TestShop(unittest.TestCase):
                 'unknown_room_probability_dict':
                     {'hallway': .1, 'treasure': .02, 'shop': .03},
                 'previous_removes': 0,
-                'color': 'red'
+                'color': 'red',
+                'seen_relics': []
 
             }
         }
@@ -117,14 +124,17 @@ class TestShop(unittest.TestCase):
                 'card_reward_offset': -5,
                 'unknown_room_probability_dict':
                     {'hallway': .1, 'treasure': .02, 'shop': .03},
-                'color': 'red'
+                'color': 'red',
+                'seen_relics': []
 
             }
         }
         shop = Shop(game_state)
-        random_card_option, cost = shop.shop['relics'][0]
-        shop.take_action(f"relics {random_card_option}")
-        self.assertIn(random_card_option, game_state['player']['relics'])
+        random_relic, cost = shop.shop['relics'][0]
+        shop.take_action(f"relics {random_relic}")
+        last_underscore_index = random_relic.rfind('_')
+        random_relic = random_relic[:last_underscore_index]
+        self.assertIn(random_relic, game_state['player']['relics'])
         self.assertEqual(game_state['player']['gold'] + cost, 1000)
 
     def test_buy_until_empty_shop(self):
@@ -148,7 +158,8 @@ class TestShop(unittest.TestCase):
                 'unknown_room_probability_dict':
                     {'hallway': .1, 'treasure': .02, 'shop': .03},
                 'previous_removes': 0,
-                'color': 'red'
+                'color': 'red',
+                'seen_relics': []
 
             }
         }
@@ -187,7 +198,8 @@ class TestShop(unittest.TestCase):
                 'unknown_room_probability_dict':
                     {'hallway': .1, 'treasure': .02, 'shop': .03},
                 'previous_removes': 0,
-                'color': 'red'
+                'color': 'red',
+                'seen_relics': []
 
             }
         }
@@ -224,7 +236,8 @@ class TestShop(unittest.TestCase):
                 'unknown_room_probability_dict':
                     {'hallway': .1, 'treasure': .02, 'shop': .03},
                 'previous_removes': 0,
-                'color': 'red'
+                'color': 'red',
+                'seen_relics': []
 
             }
         }
@@ -260,7 +273,8 @@ class TestShop(unittest.TestCase):
                 'unknown_room_probability_dict':
                     {'hallway': .1, 'treasure': .02, 'shop': .03},
                 'previous_removes': 3,
-                'color': 'red'
+                'color': 'red',
+                'seen_relics': []
 
             }
         }

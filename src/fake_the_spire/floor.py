@@ -62,20 +62,26 @@ class Floor:
 
     def take_relic(self, action: list[str]):
         relic = action[0]
-        self.game_state['player']['relics'].append(relic)
+        last_underscore_index = relic.rfind('_')
+        relic_name = relic[:last_underscore_index]
+        self.game_state['player']['relics'].append(relic_name)
         self.remove_from_current_floor('relics', relic)
 
     def take_card(self, action: list[str]):
         card = action[0]
-        if card in self.game_state['player']['deck']:
-            self.game_state['player']['deck'][card] += 1
+        last_underscore_index = card.rfind('_')
+        card_name = card[:last_underscore_index]
+        if card_name in self.game_state['player']['deck']:
+            self.game_state['player']['deck'][card_name] += 1
         else:
-            self.game_state['player']['deck'][card] = 1
+            self.game_state['player']['deck'][card_name] = 1
         self.remove_from_current_floor('cards', card)
 
     def take_potion(self, action: list[str]):
         potion = action[0]
-        self.game_state['player']['potions'].append(potion)
+        last_underscore_index = potion.rfind('_')
+        potion_name = potion[:last_underscore_index]
+        self.game_state['player']['potions'].append(potion_name)
         self.remove_from_current_floor('potions', potion)
 
     def take_gold(self, action: list[str]):

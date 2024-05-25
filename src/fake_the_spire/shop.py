@@ -94,13 +94,32 @@ class Shop(Floor):
 
     def generate_potions(self):
         potion_reference = PotionReference.get_instance()
-        potion_options = [potion_reference.get_random_potion() for _ in range(3)]
+        potion_options = [potion_reference.get_single_entity_by_probability_dict('rarity',
+                                                                                 config.POTION_RARITY_DISTRIBUTION)
+                          for _ in range(3)]
         return self.give_reference_cost(potion_options, rarity_to_cost_dict=config.SHOP_POTION_PRICE_DICT,
                                         cost_variance=config.SHOP_POTION_PRICE_VARIANCE)
 
     def generate_relics(self):
         relic_reference = RelicReference.get_instance()
-        relic_options = [relic_reference.get_random_relic() for _ in range(3)]
+        relic_options = []
+        for _ in range(2):
+            relic = relic_reference.get_single_entity_by_probability_dict('rarity',
+                                                                          config.RELIC_RARITY_DISTRIBUTION,
+                                                                          exclude_list=
+                                                                          self.game_state['environment_modifiers'][
+                                                                              'seen_relics'])
+            relic_options.append(relic)
+            self.game_state['environment_modifiers']['seen_relics'].append(relic[1]['name'])
+
+        shop_relic_option = random.choice(relic_reference.get_all_entities_by_search_list([('rarity', 'shop')],
+                                                                                          exclude_list=
+                                                                                          self.game_state[
+                                                                                              'environment_modifiers'][
+                                                                                              'seen_relics']))
+        self.game_state['environment_modifiers']['seen_relics'].append(shop_relic_option[1]['name'])
+
+        relic_options.append(shop_relic_option)
         return self.give_reference_cost(relic_options, rarity_to_cost_dict=config.SHOP_RELIC_PRICE_DICT,
                                         cost_variance=config.SHOP_RELIC_PRICE_VARIANCE)
 
