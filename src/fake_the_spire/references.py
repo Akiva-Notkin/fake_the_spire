@@ -88,11 +88,12 @@ class CardReference(BaseReference):
                                                     additional_search_criteria: list = None) -> dict:
         rarity_dict_pct_modifier = rarity_dict_modifier / 100
         rarity_dict_copy = rarity_dict.copy()
-        rarity_dict_copy['common'] -= rarity_dict_pct_modifier
-        rarity_dict_copy['rare'] += rarity_dict_pct_modifier
-        if rarity_dict_copy['rare'] < 0:
-            rarity_dict_copy['uncommon'] += rarity_dict_copy['rare']
-            rarity_dict_copy['rare'] = 0.
+        if rarity_dict_copy['rare'] < 1.:
+            rarity_dict_copy['common'] -= rarity_dict_pct_modifier
+            rarity_dict_copy['rare'] += rarity_dict_pct_modifier
+            if rarity_dict_copy['rare'] < 0:
+                rarity_dict_copy['uncommon'] += rarity_dict_copy['rare']
+                rarity_dict_copy['rare'] = 0.
         potential_entities = []
         while len(potential_entities) == 0:
             names, weights = generate_probability_list_from_probability_dict(rarity_dict_copy)
