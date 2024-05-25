@@ -24,7 +24,8 @@ class Game:
                                'card_reward_offset': -5,
                                'unknown_room_probability_dict':
                                    {'hallway': .1, 'treasure': .02, 'shop': .03}},
-                               'previous_removes': 0
+                               'previous_removes': 0,
+                               'color': 'red'
                            }
         self.current_options = []
         self.current_options_amount = 0

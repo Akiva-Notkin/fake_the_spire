@@ -1,7 +1,6 @@
 import logging
 import random
 
-from fake_the_spire import FloorOver
 from fake_the_spire.floor import Floor
 from fake_the_spire.references import CardReference, PotionReference, RelicReference
 

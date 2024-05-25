@@ -4,8 +4,10 @@ import itertools
 from fake_the_spire.floor import Floor
 from fake_the_spire import FloorOver
 
+
 class MatchAndKeep(Floor):
-    def __init__(self):
+    def __init__(self, game_state):
+        super().__init__(game_state)
         self.cards = self.generate_cards()
         self.remaining_moves = 5
         self.matches = []

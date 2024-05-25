@@ -47,6 +47,31 @@ energy_cost = 1
 rarity = "common"
 color = "red"
 
+[cards.pommel_strike]
+type = "attack"
+actions = ["attack 9", "draw"]
+target = "enemy"
+energy_cost = 1
+rarity = "common"
+color = "red"
+
+[cards.shrug_it_off]
+type = "skill"
+actions = ["apply block 8", "draw"]
+target = "self"
+energy_cost = 1
+rarity = "common"
+color = "red"
+
+[cards.flex]
+type = "skill"
+actions = ["apply strength 2", "apply strength_debuff 2"]
+target = "self"
+energy_cost = 0
+rarity = "common"
+color = "red"
+
+
 [cards.big_ol_hammer]
 type = "attack"
 actions = ["attack 20"]

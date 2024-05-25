@@ -25,7 +25,8 @@ class TestShop(unittest.TestCase):
                 "potion_reward_chance": 0.4,
                 'card_reward_offset': -5,
                 'unknown_room_probability_dict':
-                    {'hallway': .1, 'treasure': .02, 'shop': .03}
+                    {'hallway': .1, 'treasure': .02, 'shop': .03},
+                'color': 'red'
             }
         }
 
@@ -53,7 +54,9 @@ class TestShop(unittest.TestCase):
                 "potion_reward_chance": 0.4,
                 'card_reward_offset': -5,
                 'unknown_room_probability_dict':
-                    {'hallway': .1, 'treasure': .02, 'shop': .03}
+                    {'hallway': .1, 'treasure': .02, 'shop': .03},
+                'color': 'red'
+
             }
         }
 
@@ -83,7 +86,9 @@ class TestShop(unittest.TestCase):
                 'card_reward_offset': -5,
                 'unknown_room_probability_dict':
                     {'hallway': .1, 'treasure': .02, 'shop': .03},
-                'previous_removes': 0
+                'previous_removes': 0,
+                'color': 'red'
+
             }
         }
 
@@ -111,7 +116,9 @@ class TestShop(unittest.TestCase):
                 "potion_reward_chance": 0.4,
                 'card_reward_offset': -5,
                 'unknown_room_probability_dict':
-                    {'hallway': .1, 'treasure': .02, 'shop': .03}
+                    {'hallway': .1, 'treasure': .02, 'shop': .03},
+                'color': 'red'
+
             }
         }
         shop = Shop(game_state)
@@ -125,7 +132,7 @@ class TestShop(unittest.TestCase):
             "floor_num": 1,
             "player": {
                 "deck": {
-                    "defend": 5
+                    "defend": 1
                 },
                 "hp": 5,
                 "max_energy": 3,
@@ -140,19 +147,23 @@ class TestShop(unittest.TestCase):
                 'card_reward_offset': -5,
                 'unknown_room_probability_dict':
                     {'hallway': .1, 'treasure': .02, 'shop': .03},
-                'previous_removes': 0
+                'previous_removes': 0,
+                'color': 'red'
+
             }
         }
         shop = Shop(game_state)
         options, _ = shop.get_new_options()
         while not (len(options) == 1 and options[0] == 'end'):
             options_minus_end = [x for x in options if x != 'end']
-            shop.take_action(random.choice(options_minus_end))
+            choice = random.choice(options_minus_end)
+            shop.take_action(choice)
             options, _ = shop.get_new_options()
         with self.assertRaises(FloorOver):
             shop.take_action('end')
         self.assertEqual(len(game_state['player']['potions']), 2)
         self.assertEqual(len(game_state['player']['relics']), 3)
+        self.assertEqual(sum(game_state['player']['deck'].values()), 7)  # 7 cards in shop 1 in deck 1 removed
 
     def test_remove_random_card(self):
         game_state = {
@@ -175,7 +186,9 @@ class TestShop(unittest.TestCase):
                 'card_reward_offset': -5,
                 'unknown_room_probability_dict':
                     {'hallway': .1, 'treasure': .02, 'shop': .03},
-                'previous_removes': 0
+                'previous_removes': 0,
+                'color': 'red'
+
             }
         }
 
@@ -210,7 +223,9 @@ class TestShop(unittest.TestCase):
                 'card_reward_offset': -5,
                 'unknown_room_probability_dict':
                     {'hallway': .1, 'treasure': .02, 'shop': .03},
-                'previous_removes': 0
+                'previous_removes': 0,
+                'color': 'red'
+
             }
         }
 
@@ -244,7 +259,9 @@ class TestShop(unittest.TestCase):
                 'card_reward_offset': -5,
                 'unknown_room_probability_dict':
                     {'hallway': .1, 'treasure': .02, 'shop': .03},
-                'previous_removes': 3
+                'previous_removes': 3,
+                'color': 'red'
+
             }
         }
 
