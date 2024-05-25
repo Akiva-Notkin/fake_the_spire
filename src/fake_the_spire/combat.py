@@ -56,6 +56,12 @@ class Combat(Floor):
             self.resolve_end_turn()
         elif action[0] == 'gain_energy':
             self.gain_energy(action[1:])
+        elif action[0] == 'stage':
+            self.update_stage(action[1:])
+        elif action[0] == 'damage':
+            self.damage(action[1:])
+        elif action[0] == 'blockable_damage':
+            self.blockable_damage(action[1:])
         else:
             logger.info(f'Invalid action: {action}')
 
@@ -92,10 +98,8 @@ class Combat(Floor):
             target['optional_dict']['block'] -= original_attack_value
             if target['optional_dict']['block'] < 0:
                 target['optional_dict']['block'] = 0
-        if attack_target == 'player':
-            self.game_state['player']['hp'] -= attack_value
-        else:
-            target['hp'] -= attack_value
+        self.damage_character(attack_target, attack_value)
+
 
     def apply(self, action: list[str]):
         option_key = action[0]
@@ -106,6 +110,17 @@ class Combat(Floor):
             target = self.player
         else:
             target = self.get_enemy_by_id(option_target)
+
+        if option_user == 'player':
+            user = self.player
+        else:
+            user = self.get_enemy_by_id(option_user)
+
+        if option_key == 'mode_shift':
+            previous_mode_shift_count = int(user['optional_dict']['mode_shift_count'])
+            option_value = option_value + (10 * previous_mode_shift_count)
+            user['optional_dict']['mode_shift_count'] += 1
+
         if option_key in target['optional_dict']:
             target['optional_dict'][option_key] += option_value
         else:
@@ -139,20 +154,83 @@ class Combat(Floor):
             for enemy in self.enemy_list:
                 if 'enrage' in enemy['optional_dict']:
                     self.take_action(f"apply strength {enemy['optional_dict']['enrage']} {enemy['id']} {enemy['id']}")
+        if self.player['hand'][card_id]['type'] == 'attack':
+            for enemy in self.enemy_list:
+                if 'sharp_hide' in enemy['optional_dict']:
+                    self.take_action(f"blockable_damage {enemy['optional_dict']['sharp_hide']} {enemy['id']} player")
 
         self.take_action(f'gain_energy -{self.player["hand"][card_id]["energy_cost"]}')
         self.player['discard_pile'][card_id] = self.player['hand'][card_id]
         self.player['hand'].pop(card_id)
+
+    def gain_energy(self, action: list[str]):
+        amount = int(action[0])
+        self.player['energy'] += amount
+
+    def update_stage(self, action: list[str]):
+        new_stage = action[0]
+        enemy_stage_to_update = action[1]
+        enemy = self.get_enemy_by_id(enemy_stage_to_update)
+        enemy['stage'] = new_stage
+        if enemy[new_stage]['action_choose_type'] == 'ordered':
+            enemy['current_stage_action_key'] = 0
+
+    def spawn_enemy(self, action: list[str]):
+        new_enemy = action[0]
+        enemy_reference = EnemyReference.get_instance()
+        enemy = enemy_reference.generate_enemy_by_id(new_enemy)
+        self.enemy_list.append(enemy)
+
+    def blockable_damage(self, action: list[str]):
+        damage_value = int(action[0])
+        damage_user = action[1]
+        damage_target = action[2]
+
+        if damage_target == 'player':
+            target = self.player
+        else:
+            target = self.get_enemy_by_id(damage_target)
+        if damage_user == 'player':
+            user = self.player
+        else:
+            user = self.get_enemy_by_id(damage_user)
+
+        if 'block' in target['optional_dict']:
+            original_attack_value = damage_value
+            damage_value -= target['optional_dict']['block']
+            if damage_value < 0:
+                damage_value = 0
+            target['optional_dict']['block'] -= original_attack_value
+            if target['optional_dict']['block'] < 0:
+                target['optional_dict']['block'] = 0
+
+        self.damage_character(damage_target, damage_value)
+
+    def damage(self, action: list[str]):
+        damage_value = int(action[0])
+        option_user = action[1]
+        damage_target = action[2]
+        self.damage_character(damage_target, damage_value)
+
+    def damage_character(self, damage_target: str, damage_value: int):
+        if damage_target == 'player':
+            self.game_state['player']['hp'] -= damage_value
+        else:
+            enemy = self.get_enemy_by_id(damage_target)
+            enemy['hp'] -= damage_value
+            if 'mode_shift' in enemy['optional_dict']:
+                enemy['optional_dict']['mode_shift'] -= damage_value
+                if enemy['optional_dict']['mode_shift'] <= 0:
+                    del enemy['optional_dict']['mode_shift']
+                    enemy['stage'] = 'defensive_mode'
+                    enemy['current_stage_action_key'] = 0
+                    self.get_new_enemy_action()
 
     def get_enemy_by_id(self, enemy_id: str) -> dict:
         for enemy in self.enemy_list:
             if enemy['id'] == enemy_id:
                 return enemy
         raise KeyError(f'Enemy with id {enemy_id} not found')
-
-    def gain_energy(self, action: list[str]):
-        amount = int(action[0])
-        self.player['energy'] += amount
 
     def get_new_options(self) -> (list[str], int):
         cards_in_hand = self.player['hand']
@@ -192,12 +270,11 @@ class Combat(Floor):
         for enemy in self.enemy_list:
             chose_first_intent = False
             if is_first_turn:
-                enemy['current_stage'] = enemy['stage_start_combat']
                 if 'action_start_combat' in enemy:
                     enemy['intent'] = enemy['action_start_combat']
                     chose_first_intent = True
             if not chose_first_intent:
-                current_stage_dict = enemy[enemy['current_stage']]
+                current_stage_dict = enemy[enemy['stage']]
                 if current_stage_dict['action_choose_type'] == 'random':
                     if len(enemy['action_history']) > 0:
                         previous_action = enemy['action_history'][-1]

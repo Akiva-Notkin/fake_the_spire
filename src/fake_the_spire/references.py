@@ -1,5 +1,6 @@
 import toml
 import random
+import uuid
 from pathlib import Path
 from fake_the_spire.config import config
 
@@ -27,10 +28,9 @@ class BaseReference:
     def get_all_entities_by_search_list(self, search_list: list) -> list:
         entities = []
         for (entity_name, entity_dict) in self.all_entities.items():
-            for (search_keyword, search_value) in search_list:
-                if search_keyword in entity_dict:
-                    if entity_dict[search_keyword] in search_value:
-                        entities.append((entity_name, entity_dict))
+            if all(search_keyword in entity_dict and entity_dict[search_keyword] in search_value
+                   for (search_keyword, search_value) in search_list):
+                entities.append((entity_name, entity_dict))
         return entities
 
     def get_single_entity_by_probability_dict(self, probability_keyword: str, probability_dict: dict):
@@ -47,15 +47,20 @@ class EnemyReference(BaseReference):
             EnemyReference._instance = EnemyReference(config.ENEMY_TOML, 'enemies')
         return EnemyReference._instance
 
+    def generate_enemy_by_id(self, enemy_id: str) -> dict:
+        enemy_copy = self.all_entities[enemy_id].copy()
+        enemy_copy['id'] = f"{enemy_id}_{uuid.uuid4()}"
+        enemy_copy['hp'] = enemy_copy['max_hp']
+        if 'optional_dict' not in enemy_copy:
+            enemy_copy['optional_dict'] = {}
+        enemy_copy['action_history'] = []
+        enemy_copy['stage'] = enemy_copy['stage_start_combat']
+        return enemy_copy
+
     def generate_enemies_by_id_list(self, id_list: list[str]) -> list[dict]:
         all_enemies = []
-        for i in range(len(id_list)):
-            enemy_id = id_list[i]
-            enemy_copy = self.all_entities[enemy_id].copy()
-            enemy_copy['id'] = f"{enemy_id}_{i}"
-            enemy_copy['hp'] = enemy_copy['max_hp']
-            enemy_copy['optional_dict'] = {}
-            enemy_copy['action_history'] = []
+        for enemy_id in id_list:
+            enemy_copy = self.generate_enemy_by_id(enemy_id)
             all_enemies.append(enemy_copy)
         return all_enemies
 
@@ -78,6 +83,26 @@ class CardReference(BaseReference):
 
     def get_random_card(self) -> list[str]:
         return random.choice(list(self.all_entities.items()))
+
+    def get_random_card_by_rarity_dict_and_modifier(self, rarity_dict: dict, rarity_dict_modifier: int,
+                                                    additional_search_criteria: list = None) -> dict:
+        rarity_dict_pct_modifier = rarity_dict_modifier / 100
+        rarity_dict_copy = rarity_dict.copy()
+        rarity_dict_copy['common'] -= rarity_dict_pct_modifier
+        rarity_dict_copy['rare'] += rarity_dict_pct_modifier
+        if rarity_dict_copy['rare'] < 0:
+            rarity_dict_copy['uncommon'] += rarity_dict_copy['rare']
+            rarity_dict_copy['rare'] = 0.
+        potential_entities = []
+        while len(potential_entities) == 0:
+            names, weights = generate_probability_list_from_probability_dict(rarity_dict_copy)
+            choice = random.choices(names, weights=weights)[0]
+            search_list = [('rarity', choice)]
+            if additional_search_criteria is not None:
+                search_list.extend(additional_search_criteria)
+            potential_entities = self.get_all_entities_by_search_list(search_list)
+            del rarity_dict_copy[choice]
+        return random.choice(potential_entities)
 
 
 class PotionReference(BaseReference):
@@ -120,5 +145,3 @@ class CombatReference(BaseReference):
 
         combat = random.choices(valid_combats, weights=weights)[0]
         return combat
-
-

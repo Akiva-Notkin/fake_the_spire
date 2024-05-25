@@ -50,14 +50,41 @@ class Shop(Floor):
         return shop
 
     def generate_shop_cards(self):
+        attack_cards = self.generate_distinct_shop_card_list('attack', 2)
+        skill_cards = self.generate_distinct_shop_card_list('skill', 2)
+        power_cards = self.generate_distinct_shop_card_list('power', 1)
+        card_options = attack_cards + skill_cards + power_cards
+        cards_with_costs = self.give_reference_cost(card_options, rarity_to_cost_dict=config.SHOP_CARD_PRICE_DICT,
+                                                    cost_variance=config.SHOP_CARD_PRICE_VARIANCE)
+        random_element = random.choice(cards_with_costs)
+        index = cards_with_costs.index(random_element)
+        cards_with_costs[index] = (random_element[0], random_element[1] // 2)
+        return cards_with_costs
+
+    def generate_distinct_shop_card_list(self, card_type: str, num_cards: int):
+        cards = []
         card_reference = CardReference.get_instance()
-        card_options = [card_reference.get_random_card() for _ in range(3)]
-        return self.give_reference_cost(card_options, rarity_to_cost_dict=config.SHOP_CARD_PRICE_DICT,
-                                        cost_variance=config.SHOP_CARD_PRICE_VARIANCE)
+        while len(cards) < num_cards:
+            card = card_reference.get_random_card_by_rarity_dict_and_modifier(
+                rarity_dict=config.SHOP_BASE_CARD_RARITY_DISTRIBUTION,
+                rarity_dict_modifier=self.game_state['environment_modifiers']['card_reward_offset'],
+                additional_search_criteria=[('type', card_type),
+                                            ('color', self.game_state['environment_modifiers']['color'])]
+            )
+            if card not in cards:
+                cards.append(card)
+        return cards
 
     def generate_colorless_shop_cards(self):
         card_reference = CardReference.get_instance()
-        card_options = [card_reference.get_random_card() for _ in range(2)]
+        random_rare_colorless_card = random.choice(card_reference.get_all_entities_by_search_list([("rarity", "rare"),
+                                                                                                   ("color",
+                                                                                                    "colorless")]))
+        random_uncommon_colorless_card = random.choice(card_reference.get_all_entities_by_search_list(
+            [("rarity", "uncommon"), ("color", "colorless")]
+        ))
+
+        card_options = [random_rare_colorless_card, random_uncommon_colorless_card]
         rarity_to_cost_dict = config.SHOP_CARD_PRICE_DICT.copy()
         for rarity in rarity_to_cost_dict:
             rarity_to_cost_dict[rarity] = int(rarity_to_cost_dict[rarity] * config.SHOP_COLORLESS_CARD_PREMIUM)
@@ -86,7 +113,8 @@ class Shop(Floor):
 
     def get_card_removal_cost(self):
         base_removal_price = config.SHOP_BASE_REMOVAL_PRICE + (config.SHOP_COST_INCREASE_PER_REMOVAL *
-                                                               self.game_state['environment_modifiers']['previous_removes'])
+                                                               self.game_state['environment_modifiers'][
+                                                                   'previous_removes'])
         if 'smiling_mask' in self.game_state['player']['relics']:
             base_removal_price = 50
 
@@ -99,13 +127,12 @@ class Shop(Floor):
         self.game_state['environment_modifiers']['previous_removes'] += 1
 
     @staticmethod
-    def give_reference_cost(shop_options: list, rarity_to_cost_dict: {}, cost_variance: int):
+    def give_reference_cost(shop_options: list, rarity_to_cost_dict: {}, cost_variance: float):
         shop_options_with_cost = []
         for reference_name, reference_option in shop_options:
             rarity = reference_option['rarity']
-            base_cost = rarity_to_cost_dict[rarity]
+            base_cost = math.floor(rarity_to_cost_dict[rarity] * config.SHOP_ASCENSION_CARD_PREMIUM)
             int_cost_variance = math.floor(cost_variance * base_cost)
             cost = random.randint(base_cost - int_cost_variance, base_cost + int_cost_variance)
             shop_options_with_cost.append((reference_name, cost))
         return shop_options_with_cost
-

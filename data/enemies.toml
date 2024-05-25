@@ -11,6 +11,8 @@ hit = [["attack 5", "player"]]
 [enemies.weakling]
 max_hp = 1
 stage_start_combat = "base"
+[enemies.weakling.optional_dict]
+weak = 1
 [enemies.weakling.base]
 action_probabilities = {"weak" = 1}
 action_choose_type = "random"
@@ -29,9 +31,9 @@ block = [["apply block 10", "self"]]
 
 [enemies.jaw_worm]
 max_hp = 10
+action_start_combat = "chomp"
 action_probabilities = {"bellow" = 0.45, "thrash" = 0.3, "chomp" = 0.25}
 action_max_consecutive = {"bellow" = 1, "thrash" = 2, "chomp" = 1}
-action_start_combat = "chomp"
 action_choose_type = "random"
 [enemies.jaw_worm.actions]
 bellow = [["apply strength 5", "self"], ["apply block 9", "self"]]
@@ -60,17 +62,28 @@ actions = [["attack 5", "player"]]
 
 [enemies.the_guardian]
 max_hp = 250
-stage_start_combat = "offensive_mode"
+stage_start_combat = "offensive_mode_start"
+[enemies.the_guardian.optional_dict]
+mode_shift = 40
+mode_shift_count = 1
+[enemies.the_guardian.offensive_mode_start]
+action_choose_type = "ordered"
+action_order = ["charge_up", "fierce_bash", "vent_steam", "whirlwind"]
 [enemies.the_guardian.offensive_mode]
-stage_action_choose_type = ""
+action_choose_type = "ordered"
+action_order = ["whirlwind", "charge_up", "fierce_bash", "vent_steam"]
+[enemies.the_guardian.defensive_mode]
+action_choose_type = "ordered"
+action_order = ["close_up", "roll_attack", "twin_slam"]
 [enemies.the_guardian.actions]
-charge_up = [["apply block 5", "self"]]
+charge_up = [["apply block 9", "self"]]
 fierce_bash = [["attack 36", "player"]]
 vent_steam = [["apply weak 2", "player"], ["apply vulnerable 2", "player"]]
 whirlwind = [["attack 5", "player"], ["attack 5", "player"], ["attack 5", "player"], ["attack 5", "player"]]
 close_up = [["apply sharp_hide 4", "self"]]
 roll_attack = [["attack 10", "player"]]
-twin_slam = [["stage offensive_mode", "self"], ["attack 8", "player"], ["attack 8", "player"], ["apply sharp_hide -4"]]
+twin_slam = [["stage offensive_mode", "self"], ["attack 8", "player"], ["attack 8", "player"],
+    ["apply sharp_hide -4", "self"], ["apply mode_shift 40", "self"]]
 
 #
 #[enemies.lagavulin]
@@ -82,6 +95,8 @@ twin_slam = [["stage offensive_mode", "self"], ["attack 8", "player"], ["attack 
 [enemies.sentry]
 max_hp = 40
 stage_start_combat = "base"
+[enemies.sentry.optional_dict]
+artifact = 1
 [enemies.sentry.base]
 action_choose_type = "ordered"
 action_order = ["beam", "bolt"]
@@ -100,3 +115,34 @@ action_order = ["skull_bash", "rush", "rush"]
 bellow = [["apply enrage 3", "self"]]
 rush = [["attack 16", "player"]]
 skull_bash = [["attack 8", "player"], ["apply vulnerable 2", "player"]]
+
+[enemies.hexaghost]
+max_hp = 264
+stage_start_combat = "activate"
+[enemies.hexaghost.activate]
+action_choose_type = "ordered"
+action_order = ["activate", "divider"]
+[enemies.hexaghost.orbs]
+action_choose_type = "ordered"
+action_order = ["sear", "tackle", "sear", "inflame", "tackle", "sear", "inferno"]
+[enemies.hexaghost.actions]
+activate = []
+divider = [["apply divider_buff 1", "self"],
+    ["attack 1", "player"],
+    ["attack 1", "player"],
+    ["attack 1", "player"],
+    ["attack 1", "player"],
+    ["attack 1", "player"]]
+sear = [["attack 6", "player"], ["add discard burn", "player"], ["add discard burn", "player"]]
+tackle = [["attack 5", "player"], ["attack 5", "player"]]
+inflame = [["apply strength 3", "self"], ["apply block 12", "self"]]
+inferno = [
+    ["attack 3", "player"],
+    ["attack 3", "player"],
+    ["attack 3", "player"],
+    ["attack 3", "player"],
+    ["attack 3", "player"],
+    ["attack 3", "player"],
+    ["add discard burn", "player"], ["add discard burn", "player"], ["add discard burn", "player"],
+    ["apply burn_buff 1", "self"]
+]
