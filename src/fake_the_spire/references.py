@@ -82,11 +82,16 @@ class CardReference(BaseReference):
     def generate_deck_dict_from_init_dict(self, init_dict: dict) -> dict:
         cards = {}
         for key, value in init_dict.items():
-            card_instance = self.all_entities[key].copy()
             for i in range(value):
-                card_id = f'{key}_{i}'
-                cards[card_id] = card_instance
+                cards.update(self.generate_card_by_name(key))
         return cards
+
+    def generate_card_by_name(self, name: str) -> dict:
+        card_dict = {}
+        card_instance = self.all_entities[name].copy()
+        card_instance['name'] = name
+        card_dict[f'{name}_{uuid.uuid4()}'] = card_instance
+        return card_dict
 
     def get_random_card(self) -> list[str]:
         return random.choice(list(self.all_entities.items()))

@@ -2,105 +2,250 @@
 [cards.strike]
 type = "attack"
 energy_cost = 1
-target = "enemy"
-actions = ["attack 6"]
-rarity = "base"
-color = "colorless"
-
-[cards.bash]
-type = "attack"
-actions = ["attack 8", "apply vulnerable 2"]
-target = "enemy"
-energy_cost = 2
+target = ["enemy"]
+actions = [["attack 6", "enemy"]]
 rarity = "base"
 color = "colorless"
 
 [cards.defend]
 type = "skill"
-actions = ["apply block 5"]
+actions = [["apply block 5", "self"]]
 energy_cost = 1
-target = "self"
+target = ["self"]
 rarity = "base"
 color = "colorless"
 
-[cards.draw_two]
+[cards.bash]
+type = "attack"
+actions = [["attack 8", "enemy"], ["apply vulnerable 2", "enemy"]]
+target = ["enemy"]
+energy_cost = 2
+rarity = "base"
+color = "red"
+
+[cards.anger]
+type = "attack"
+actions = [["attack 6", "enemy"], ["add discard anger", "self"]]
+target = ["enemy"]
+energy_cost = 0
+rarity = "common"
+color = "red"
+
+[cards.armaments]
 type = "skill"
-actions = ["draw", "draw"]
-target = "self"
+actions = [["apply block 5", "self"], ["upgrade random", "self"]]
+target = ["self"]
 energy_cost = 1
-rarity = "base"
-color = "colorless"
+rarity = "common"
+color = "red"
 
-[cards.inflame]
-type = "power"
-actions = ["apply strength 2"]
-target = "self"
+[cards.body_slam]
+type = "attack"
+actions = [["apply body_slam 1", "self"], ["attack 0", "enemy"], ["apply body_slam -1", "self"]]
+target = ["enemy"]
 energy_cost = 1
-rarity = "uncommon"
+rarity = "common"
+color = "red"
+
+[cards.clash]
+type = "attack"
+actions = [["attack 14", "enemy"]]
+target = ["enemy"]
+energy_cost = 0
+rarity = "common"
+color = "red"
+
+[cards.cleave]
+type = "attack"
+actions = [["attack 8", "enemy"]]
+target = ["all"]
+energy_cost = 1
+rarity = "common"
+color = "red"
+
+[cards.clothesline]
+type = "attack"
+actions = [["attack 12", "enemy"], ["apply weak 2", "enemy"]]
+target = ["enemy"]
+energy_cost = 2
+rarity = "common"
+color = "red"
+
+[cards.flex]
+type = "skill"
+actions = [["apply strength 2", "self"], ["apply strength_debuff 2", "self"]]
+target = ["self"]
+energy_cost = 0
+rarity = "common"
+color = "red"
+
+[cards.havoc]
+type = "skill"
+actions = [["play_top_and_exhaust", "self"]]
+target = ["self"]
+energy_cost = 1
+rarity = "common"
+color = "red"
+
+[cards.headbutt]
+type = "attack"
+actions = [["attack 9", "enemy"], ["put discard draw_top", "put"]]
+target = ["discard_pile", "enemy"]
+energy_cost = 1
+rarity = "common"
+color = "red"
+
+[cards.heavy_blade]
+type = "attack"
+actions = [["apply heavy_blade 3", "self"], ["attack 14", "enemy"], ["apply heavy_blade -3", "self"]]
+target = ["enemy"]
+energy_cost = 2
+rarity = "common"
 color = "red"
 
 [cards.iron_wave]
 type = "attack"
-actions = ["apply block 5", "attack 5"]
-target = "enemy"
+actions = [["apply block 5", "self"], ["attack 5", "enemy"]]
+target = ["enemy"]
 energy_cost = 1
+rarity = "common"
+color = "red"
+
+[cards.perfected_strike]
+type = "attack"
+actions = [["apply perfected_strike 2", "self"], ["attack 6", "enemy"], ["apply perfected_strike -2", "self"]]
+target = ["enemy"]
+energy_cost = 2
 rarity = "common"
 color = "red"
 
 [cards.pommel_strike]
 type = "attack"
-actions = ["attack 9", "draw"]
-target = "enemy"
+actions = [["attack 9", "enemy"], ["draw", "self"]]
+target = ["enemy"]
 energy_cost = 1
 rarity = "common"
 color = "red"
 
 [cards.shrug_it_off]
 type = "skill"
-actions = ["apply block 8", "draw"]
-target = "self"
+actions = [["apply block 8", "self"], ["draw", "self"]]
+target = ["self"]
 energy_cost = 1
 rarity = "common"
 color = "red"
 
-[cards.flex]
+[cards.sword_boomerang]
+type = "attack"
+actions = [["attack 3", "random"], ["attack 3", "random"], ["attack 3", "random"]]
+target = ["random"]
+energy_cost = 1
+rarity = "common"
+color = "red"
+
+[cards.thunderclap]
+type = "attack"
+actions = [["attack 4", "enemy"], ["apply vulnerable 1", "enemy"]]
+target = ["all"]
+energy_cost = 1
+rarity = "common"
+color = "red"
+
+[cards.true_grit]
 type = "skill"
-actions = ["apply strength 2", "apply strength_debuff 2"]
-target = "self"
+actions = [["apply block 7", "self"], ["exhaust", "random"]]
+target = ["self"]
+energy_cost = 1
+rarity = "common"
+color = "red"
+
+[cards.twin_strike]
+type = "attack"
+actions = [["attack 5", "enemy"], ["attack 5", "enemy"]]
+target = ["enemy"]
+energy_cost = 1
+rarity = "common"
+color = "red"
+
+[cards.warcry]
+type = "skill"
+actions = [["draw", "self"],["put hand draw_top", "put"], ["exhaust", "self"]]
+target = ["hand"]
 energy_cost = 0
 rarity = "common"
 color = "red"
 
+[cards.wild_strike]
+type = "attack"
+actions = [["attack 12", "enemy"], ["add draw wound", "self"]]
+target = ["enemy"]
+energy_cost = 1
+rarity = "common"
+color = "red"
+
+[cards.battle_trance]
+type = "skill"
+actions = [["draw", "self"], ["draw", "self"], ["draw", "self"], ["apply battle_trance 2", "self"]]
+target = ["self"]
+energy_cost = 0
+rarity = "uncommon"
+color = "red"
+
+
+[cards.inflame]
+type = "power"
+actions = [["apply strength 2", "self"]]
+target = ["self"]
+energy_cost = 1
+rarity = "uncommon"
+color = "red"
+
+
+
 
 [cards.big_ol_hammer]
 type = "attack"
-actions = ["attack 20"]
-target = "enemy"
+actions = [["attack 20", "enemy"]]
+target = ["enemy"]
 energy_cost = 0
+rarity = "base"
+color = "colorless"
+
+[cards.swift_strike]
+type = "attack"
+rarity = "uncommon"
+actions = [["attack 7", "enemy"]]
+energy_cost = 0
+target = ["enemy"]
+color = "colorless"
+
+[cards.master_of_strategy]
+type = "skill"
+rarity = "rare"
+actions = [["draw", "self"], ["draw", "self"], ["draw", "self"]]
+target = ["self"]
+energy_cost = 0
+color = "colorless"
+
+[cards.draw_two]
+type = "skill"
+actions = [["draw", "self"], ["draw", "self"]]
+target = ["self"]
+energy_cost = 1
 rarity = "base"
 color = "colorless"
 
 [cards.burn]
 type = "curse"
 rarity = "curse"
-actions = []
-unplayable = true
-target = "self"
-end_of_turn = ["blockable_damage 2"]
+actions = 'unplayable'
+target = ["self"]
+end_of_turn = [["blockable_damage 2", "self"]]
 color = "curse"
 
-[cards.swift_strike]
-type = "attack"
-rarity = "uncommon"
-actions = ["attack 7"]
-energy_cost = 0
-target = "enemy"
-color = "colorless"
-
-[cards.master_of_strategy]
-type = "skill"
-rarity = "rare"
-actions = ["draw", "draw", "draw"]
-target = "self"
-energy_cost = 0
-color = "colorless"
+[cards.wound]
+type = "status"
+rarity = "status"
+actions = "unplayable"
+target = ["self"]
+color = "status"
