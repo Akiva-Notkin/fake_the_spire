@@ -7,6 +7,11 @@ from fake_the_spire.combat import Combat
 logging.basicConfig(level=logging.INFO)
 
 
+def get_key_by_substring(dictionary, substring):
+    for key in dictionary:
+        if substring in key:
+            return key
+
 class TestCombat(unittest.TestCase):
     # def test_apply_block_play_defend(self):
     #     game_state = {
@@ -41,7 +46,8 @@ class TestCombat(unittest.TestCase):
         }
         combat = Combat(game_state, ['louse'])
         enemy_id = combat.enemy_list[0]['id']
-        combat.take_action(f"play strike_0 {enemy_id}")
+        strike_id = get_key_by_substring(combat.player['hand'], 'strike')
+        combat.take_action(f"play {strike_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['hp'], 94)
 
     def test_add_vuln_deal_damage_play_bash(self):
@@ -60,7 +66,8 @@ class TestCombat(unittest.TestCase):
         }
         combat = Combat(game_state, ['louse'])
         enemy_id = combat.enemy_list[0]['id']
-        combat.take_action(f"play bash_0 {enemy_id}")
+        card_id = get_key_by_substring(combat.player['hand'], 'bash')
+        combat.take_action(f"play {card_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['hp'], 92)
         self.assertEqual(combat.enemy_list[0]['optional_dict']['vulnerable'], 2)
 
@@ -81,8 +88,10 @@ class TestCombat(unittest.TestCase):
         }
         combat = Combat(game_state, ['louse'])
         enemy_id = combat.enemy_list[0]['id']
-        combat.take_action(f"play bash_0 {enemy_id}")
-        combat.take_action(f"play strike_0 {enemy_id}")
+        strike_id = get_key_by_substring(combat.player['hand'], 'strike')
+        bash_id = get_key_by_substring(combat.player['hand'], 'bash')
+        combat.take_action(f"play {bash_id} {enemy_id}")
+        combat.take_action(f"play {strike_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['hp'], 83)
         self.assertEqual(combat.enemy_list[0]['optional_dict']['vulnerable'], 2)
 
@@ -101,7 +110,8 @@ class TestCombat(unittest.TestCase):
             }
         }
         combat = Combat(game_state, ['louse'])
-        combat.take_action("play draw_two_0")
+        draw_two_id = get_key_by_substring(combat.player['hand'], 'draw_two')
+        combat.take_action(f"play {draw_two_id}")
         self.assertEqual(len(combat.player['hand']), 4)
 
     def test_end_turn_enemy_take_action(self):
@@ -141,9 +151,11 @@ class TestCombat(unittest.TestCase):
         enemy_id = combat.enemy_list[0]['id']
         combat.take_action("end")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 10)
-        combat.take_action(f"play strike_0 {enemy_id}")
+        strike_id = get_key_by_substring(combat.player['hand'], 'strike')
+        combat.take_action(f"play {strike_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 4)
-        combat.take_action(f"play strike_1 {enemy_id}")
+        strike_id = get_key_by_substring(combat.player['hand'], 'strike')
+        combat.take_action(f"play {strike_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 0)
         self.assertEqual(combat.enemy_list[0]['hp'], 8)
 
@@ -162,7 +174,8 @@ class TestCombat(unittest.TestCase):
             }
         }
         combat = Combat(game_state, ['louse'])
-        combat.take_action("play defend_0")
+        defend_id = get_key_by_substring(combat.player['hand'], 'defend')
+        combat.take_action(f"play {defend_id}")
         self.assertEqual(combat.player['optional_dict']['block'], 5)
         combat.take_action("end")
         self.assertEqual(combat.player['optional_dict']['block'], 0)
@@ -185,11 +198,13 @@ class TestCombat(unittest.TestCase):
         combat = Combat(game_state, ['blockman'])
         enemy_id = combat.enemy_list[0]['id']
         combat.take_action("end")
-        combat.take_action(f"play bash_0 {enemy_id}")
+        bash_id = get_key_by_substring(combat.player['hand'], 'bash')
+        combat.take_action(f"play {bash_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 2)
         self.assertEqual(combat.enemy_list[0]['optional_dict']['vulnerable'], 2)
         combat.take_action("end")
-        combat.take_action(f"play bash_0 {enemy_id}")
+        bash_id = get_key_by_substring(combat.player['hand'], 'bash')
+        combat.take_action(f"play {bash_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 0)
         self.assertEqual(combat.enemy_list[0]['optional_dict']['vulnerable'], 3)
         self.assertEqual(combat.enemy_list[0]['hp'], 10)
@@ -231,7 +246,8 @@ class TestCombat(unittest.TestCase):
         combat = Combat(game_state, ['weakling'])
         enemy_id = combat.enemy_list[0]['id']
         with self.assertRaises(FloorOver):
-            combat.take_action(f"play strike_0 {enemy_id}")
+            strike_id = get_key_by_substring(combat.player['hand'], 'strike')
+            combat.take_action(f"play {strike_id} {enemy_id}")
         self.assertLessEqual(combat.enemy_list[0]['hp'], 0)
 
     def test_small_acid_slime_combat(self):
@@ -288,7 +304,8 @@ class TestCombat(unittest.TestCase):
         self.assertTrue(combat.enemy_list[0]['intent'], 'rush')
         combat.take_action("end")
         self.assertEqual(game_state['player']['hp'], 68)
-        combat.take_action("play defend_0")
+        defend_id = get_key_by_substring(combat.player['hand'], 'defend')
+        combat.take_action(f"play {defend_id}")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['strength'], 3)
         self.assertTrue(combat.enemy_list[0]['intent'], 'rush')
         combat.take_action("end")
@@ -315,14 +332,17 @@ class TestCombat(unittest.TestCase):
         self.assertEqual(combat.enemy_list[0]['optional_dict']['mode_shift'], 40)
         self.assertEqual(combat.enemy_list[0]['optional_dict']['mode_shift_count'], 1)
         self.assertEqual(combat.enemy_list[0]['intent'], 'charge_up')
-        combat.take_action(f"play big_ol_hammer_0 {guardian_id}")
+        big_ol_hammer_id = get_key_by_substring(combat.player['hand'], 'big_ol_hammer')
+        combat.take_action(f"play {big_ol_hammer_id} {guardian_id}")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['mode_shift'], 20)
         self.assertEqual(combat.enemy_list[0]['hp'], 230)
         combat.take_action("end")
         self.assertEqual(combat.enemy_list[0]['intent'], 'fierce_bash')
-        combat.take_action(f"play big_ol_hammer_0 {guardian_id}")
+        big_ol_hammer_id = get_key_by_substring(combat.player['hand'], 'big_ol_hammer')
+        combat.take_action(f"play {big_ol_hammer_id} {guardian_id}")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['mode_shift'], 9)
-        combat.take_action(f"play big_ol_hammer_1 {guardian_id}")
+        big_ol_hammer_id = get_key_by_substring(combat.player['hand'], 'big_ol_hammer')
+        combat.take_action(f"play {big_ol_hammer_id} {guardian_id}")
         self.assertNotIn('mode_shift', combat.enemy_list[0]['optional_dict'])
         self.assertEqual(combat.enemy_list[0]['hp'], 199)
         self.assertEqual(combat.enemy_list[0]['stage'], 'defensive_mode')
@@ -330,10 +350,13 @@ class TestCombat(unittest.TestCase):
         combat.take_action("end")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['sharp_hide'], 4)
         self.assertEqual(combat.enemy_list[0]['intent'], 'roll_attack')
-        combat.take_action(f"play big_ol_hammer_0 {guardian_id}")
+        big_ol_hammer_id = get_key_by_substring(combat.player['hand'], 'big_ol_hammer')
+        combat.take_action(f"play {big_ol_hammer_id} {guardian_id}")
         self.assertEqual(game_state['player']['hp'], 96)
-        combat.take_action(f"play defend_0 {guardian_id}")
-        combat.take_action(f"play big_ol_hammer_1 {guardian_id}")
+        defend_id = get_key_by_substring(combat.player['hand'], 'defend')
+        combat.take_action(f"play {defend_id} {guardian_id}")
+        big_ol_hammer_id = get_key_by_substring(combat.player['hand'], 'big_ol_hammer')
+        combat.take_action(f"play {big_ol_hammer_id} {guardian_id}")
         self.assertEqual(game_state['player']['hp'], 96)
         combat.take_action("end")
         self.assertEqual(combat.enemy_list[0]['intent'], 'twin_slam')

@@ -7,14 +7,6 @@ actions = ["attack 6"]
 rarity = "base"
 color = "colorless"
 
-[cards.bash]
-type = "attack"
-actions = ["attack 8", "apply vulnerable 2"]
-target = "enemy"
-energy_cost = 2
-rarity = "base"
-color = "colorless"
-
 [cards.defend]
 type = "skill"
 actions = ["apply block 5"]
@@ -23,13 +15,17 @@ target = "self"
 rarity = "base"
 color = "colorless"
 
-[cards.draw_two]
-type = "skill"
-actions = ["draw", "draw"]
-target = "self"
-energy_cost = 1
+[cards.bash]
+type = "attack"
+actions = ["attack 8", "apply vulnerable 2"]
+target = "enemy"
+energy_cost = 2
 rarity = "base"
-color = "colorless"
+color = "red"
+
+[cards.anger]
+type = "attack"
+actions = ["attack 6", "add"]
 
 [cards.inflame]
 type = "power"
@@ -71,7 +67,6 @@ energy_cost = 0
 rarity = "common"
 color = "red"
 
-
 [cards.big_ol_hammer]
 type = "attack"
 actions = ["attack 20"]
@@ -79,15 +74,6 @@ target = "enemy"
 energy_cost = 0
 rarity = "base"
 color = "colorless"
-
-[cards.burn]
-type = "curse"
-rarity = "curse"
-actions = []
-unplayable = true
-target = "self"
-end_of_turn = ["blockable_damage 2"]
-color = "curse"
 
 [cards.swift_strike]
 type = "attack"
@@ -104,3 +90,20 @@ actions = ["draw", "draw", "draw"]
 target = "self"
 energy_cost = 0
 color = "colorless"
+
+[cards.draw_two]
+type = "skill"
+actions = ["draw", "draw"]
+target = "self"
+energy_cost = 1
+rarity = "base"
+color = "colorless"
+
+[cards.burn]
+type = "curse"
+rarity = "curse"
+actions = []
+unplayable = true
+target = "self"
+end_of_turn = ["blockable_damage 2"]
+color = "curse"

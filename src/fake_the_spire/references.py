@@ -84,7 +84,7 @@ class CardReference(BaseReference):
         for key, value in init_dict.items():
             card_instance = self.all_entities[key].copy()
             for i in range(value):
-                card_id = f'{key}_{i}'
+                card_id = f'{key}_{uuid.uuid4()}'
                 cards[card_id] = card_instance
         return cards
 

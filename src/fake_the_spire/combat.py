@@ -62,6 +62,8 @@ class Combat(Floor):
             self.damage(action[1:])
         elif action[0] == 'blockable_damage':
             self.blockable_damage(action[1:])
+        elif action[0] == 'add':
+            self.add_card(action[1:])
         else:
             logger.info(f'Invalid action: {action}')
 
@@ -212,6 +214,12 @@ class Combat(Floor):
         damage_target = action[2]
         self.damage_character(damage_target, damage_value)
 
+    def add(self, action: list[str]):
+        add_location = action[0]
+        add_card = action[1]
+        if add_location == 'discard':
+            self.player['discard_pile'][add_card] = action[2]
+
     def damage_character(self, damage_target: str, damage_value: int):
         if damage_target == 'player':
             self.game_state['player']['hp'] -= damage_value
@@ -225,6 +233,7 @@ class Combat(Floor):
                     enemy['stage'] = 'defensive_mode'
                     enemy['current_stage_action_key'] = 0
                     self.get_new_enemy_action()
+
 
     def get_enemy_by_id(self, enemy_id: str) -> dict:
         for enemy in self.enemy_list:
