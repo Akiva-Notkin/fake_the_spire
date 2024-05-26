@@ -12,24 +12,8 @@ def get_key_by_substring(dictionary, substring):
         if substring in key:
             return key
 
-class TestCombat(unittest.TestCase):
-    # def test_apply_block_play_defend(self):
-    #     game_state = {
-    #         "floor_num": 1,
-    #         "act": 1,
-    #         "player": {
-    #             "deck": {
-    #                 "defend": 5
-    #             },
-    #             "hp": 5,
-    #             "max_energy": 3,
-    #             "max_hp": 5
-    #         }
-    #     }
-    #     combat = Combat(game_state)
-    #     combat.take_action("play defend_0")
-    #     self.assertEqual(combat.player['optional_dict']['block'], 5)
 
+class TestCombat(unittest.TestCase):
     def test_deal_damage_play_strike(self):
         game_state = {
             "floor_num": 1,
@@ -383,3 +367,149 @@ class TestCombat(unittest.TestCase):
         }
         combat = Combat(game_state, ['weakling'])
         self.assertEqual(combat.enemy_list[0]['optional_dict']['weak'], 1)
+
+    def test_anger(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "anger": 5
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+        combat = Combat(game_state, ['louse'])
+        enemy_id = combat.enemy_list[0]['id']
+        anger_id = get_key_by_substring(combat.player['hand'], 'anger')
+        combat.take_action(f"play {anger_id} {enemy_id}")
+        self.assertEqual(combat.enemy_list[0]['hp'], 94)
+        self.assertEqual(len(combat.player['discard_pile'].keys()), 2)
+
+    def test_sword_boomerang(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "sword_boomerang": 5
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+        combat = Combat(game_state, ['louse', 'louse'])
+        sword_boomerang_id = get_key_by_substring(combat.player['hand'], 'sword_boomerang')
+        combat.take_action(f"play {sword_boomerang_id}")
+        sword_boomerang_id = get_key_by_substring(combat.player['hand'], 'sword_boomerang')
+        combat.take_action(f"play {sword_boomerang_id}")
+        sword_boomerang_id = get_key_by_substring(combat.player['hand'], 'sword_boomerang')
+        combat.take_action(f"play {sword_boomerang_id}")
+        # Sometimes useful but not 100% reliable because random
+        # self.assertLess(combat.enemy_list[0]['hp'], 100)
+        # self.assertLess(combat.enemy_list[1]['hp'], 100)
+        self.assertEqual(combat.enemy_list[0]['hp'] + combat.enemy_list[1]['hp'], 173)
+
+    def test_cleave(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "cleave": 5
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+        combat = Combat(game_state, ['louse', 'louse', 'louse'])
+        cleave_id = get_key_by_substring(combat.player['hand'], 'cleave')
+        combat.take_action(f"play {cleave_id}")
+        self.assertEqual(combat.enemy_list[0]['hp'], 92)
+        self.assertEqual(combat.enemy_list[1]['hp'], 92)
+        self.assertEqual(combat.enemy_list[2]['hp'], 92)
+
+    def test_thunderclap(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "thunderclap": 5
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+        combat = Combat(game_state, ['louse', 'louse', 'louse'])
+        thunderclap_id = get_key_by_substring(combat.player['hand'], 'thunderclap')
+        combat.take_action(f"play {thunderclap_id}")
+        self.assertEqual(combat.enemy_list[0]['hp'], 96)
+        self.assertEqual(combat.enemy_list[1]['hp'], 96)
+        self.assertEqual(combat.enemy_list[2]['hp'], 96)
+        self.assertEqual(combat.enemy_list[0]['optional_dict']['vulnerable'], 1)
+        self.assertEqual(combat.enemy_list[1]['optional_dict']['vulnerable'], 1)
+        self.assertEqual(combat.enemy_list[2]['optional_dict']['vulnerable'], 1)
+
+    def test_headbutt(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "headbutt": 25
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+        combat = Combat(game_state, ['louse'])
+        enemy_id = combat.enemy_list[0]['id']
+        headbutt_id = get_key_by_substring(combat.player['hand'], 'headbutt')
+        combat.take_action(f"play {headbutt_id} {enemy_id}")
+        discard_id = get_key_by_substring(combat.player['discard_pile'], 'headbutt')
+        headbutt_id = get_key_by_substring(combat.player['hand'], 'headbutt')
+        combat.take_action(f"play {headbutt_id} {enemy_id} {discard_id}")
+        self.assertIn(discard_id, combat.player['top_of_deck_ids'])
+        self.assertIn(discard_id, combat.player['draw_pile'])
+        self.assertNotIn(discard_id, combat.player['discard_pile'])
+        combat.take_action("end")
+        self.assertIn(discard_id, combat.player['hand'])
+
+    def test_warcry(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "warcry": 3,
+                    "strike": 2
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+        combat = Combat(game_state, ['louse'])
+        warcry_id = get_key_by_substring(combat.player['hand'], 'warcry')
+        strike_id = get_key_by_substring(combat.player['hand'], 'strike')
+        self.assertIn(f"play {warcry_id} {strike_id}", combat.get_new_options()[0])
+        self.assertNotIn(f"play {warcry_id} {warcry_id}", combat.get_new_options()[0])
+        combat.take_action(f"play {warcry_id} {strike_id}")
+        self.assertIn(strike_id, combat.player['top_of_deck_ids'])
+        self.assertIn(strike_id, combat.player['draw_pile'])
+        self.assertNotIn(strike_id, combat.player['hand'])
+        combat.take_action("end")
+        self.assertIn(strike_id, combat.player['hand'])

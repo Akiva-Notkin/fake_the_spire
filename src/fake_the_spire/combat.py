@@ -1,5 +1,7 @@
 import logging
 import random
+import itertools
+
 from fake_the_spire import FloorOver
 from fake_the_spire.floor import Floor
 from fake_the_spire.references import (EnemyReference, CardReference, CombatReference,
@@ -14,7 +16,7 @@ class Combat(Floor):
         self.floor_type = "combat"
         self.player = {'max_energy': game_state['player']['max_energy'], 'optional_dict': {}, 'hand': {}, 'energy': 0,
                        'draw_pile': self.generate_draw_pile(game_state['player']['deck']), 'discard_pile': {},
-                       'potions': game_state['player']['potions']}
+                       'potions': game_state['player']['potions'], 'top_of_deck_ids': []}
         self.enemy_list = self.generate_enemies(game_state['act'], combat_type, enemy_ids)
         self.combat_type = combat_type
         self.start_combat()
@@ -64,6 +66,8 @@ class Combat(Floor):
             self.blockable_damage(action[1:])
         elif action[0] == 'add':
             self.add_card(action[1:])
+        elif action[0] == 'put':
+            self.put_card(action[1:])
         else:
             logger.info(f'Invalid action: {action}')
 
@@ -102,7 +106,6 @@ class Combat(Floor):
                 target['optional_dict']['block'] = 0
         self.damage_character(attack_target, attack_value)
 
-
     def apply(self, action: list[str]):
         option_key = action[0]
         option_value = int(action[1])
@@ -133,24 +136,36 @@ class Combat(Floor):
             self.player['draw_pile'] = self.player['discard_pile']
             self.player['discard_pile'] = {}
         if len(self.player['draw_pile']) > 0:
-            random_card_id = random.choice(list(self.player['draw_pile'].keys()))
-            random_card = self.player['draw_pile'].pop(random_card_id)
-            self.player['hand'][random_card_id] = random_card
+            if len(self.player['top_of_deck_ids']) > 0:
+                card_id = self.player['top_of_deck_ids'].pop()
+            else:
+                card_id = random.choice(list(self.player['draw_pile'].keys()))
+            card = self.player['draw_pile'].pop(card_id)
+            self.player['hand'][card_id] = card
 
     def play(self, action: list[str]):
         card_id = action[0]
+        target_list = action[1:]
+        enemy_target_list = None
+        discard_target_list = []
+        hand_target_list = []
+        for target in target_list:
+            if self.get_enemy_by_id(target):
+                enemy_target_list = [target]
+            if target in self.player['discard_pile']:
+                discard_target_list.append(target)
+            if target in self.player['hand']:
+                hand_target_list.append(target)
+        if enemy_target_list is None:
+            enemy_target_list = [enemy['id'] for enemy in self.enemy_list]
+        put_target_list = discard_target_list + hand_target_list
+
         card_actions = self.player['hand'][card_id]['actions']
-        card_target = self.player['hand'][card_id]['target']
-        if len(action) == 2:
-            target_list = [self.get_enemy_by_id(action[1])]
-        else:
-            target_list = self.enemy_list
-        for card_action in card_actions:
-            if card_target == 'self':
-                self.take_action(f"{card_action} player player")
-            else:
-                for target in target_list:
-                    self.take_action(f"{card_action} player {target['id']}")
+        for (card_action, card_target) in card_actions:
+            target_string_list = self.generate_target_string_list(card_target, enemy_target_list, put_target_list)
+            for target_string in target_string_list:
+                # print(f"{card_action} player {target_string}")
+                self.take_action(f"{card_action} player {target_string}")
 
         if self.player['hand'][card_id]['type'] == 'skill':
             for enemy in self.enemy_list:
@@ -164,6 +179,20 @@ class Combat(Floor):
         self.take_action(f'gain_energy -{self.player["hand"][card_id]["energy_cost"]}')
         self.player['discard_pile'][card_id] = self.player['hand'][card_id]
         self.player['hand'].pop(card_id)
+
+    @staticmethod
+    def generate_target_string_list(card_target: str, enemy_target_list: list, put_target_list: list) -> list[str]:
+        if card_target == 'self':
+            return ['player']
+        if card_target == 'random':
+            return [f'{random.choice(enemy_target_list)}']
+        if card_target == 'put':
+            return [' '.join(put_target_list)]
+        if card_target == 'enemy':
+            target_list = []
+            for target in enemy_target_list:
+                target_list.append(target)
+            return target_list
 
     def gain_energy(self, action: list[str]):
         amount = int(action[0])
@@ -214,11 +243,33 @@ class Combat(Floor):
         damage_target = action[2]
         self.damage_character(damage_target, damage_value)
 
-    def add(self, action: list[str]):
+    def add_card(self, action: list[str]):
         add_location = action[0]
         add_card = action[1]
+        card_reference = CardReference.get_instance()
+        card = card_reference.generate_card_by_name(add_card)
         if add_location == 'discard':
-            self.player['discard_pile'][add_card] = action[2]
+            self.player['discard_pile'].update(card)
+        if add_location == 'draw':
+            self.player['draw_pile'].update(card)
+
+    def put_card(self, action: list[str]):
+        card_ids = action[3:]
+        if card_ids == ['']:
+            return
+        source = action[0]
+        destination = action[1]
+        temp_card_pile = {}
+        for card_id in card_ids:
+            if source == 'discard':
+                temp_card_pile[card_id] = self.player['discard_pile'][card_id]
+                del self.player['discard_pile'][card_id]
+            if source == 'hand':
+                temp_card_pile[card_id] = self.player['hand'][card_id]
+                del self.player['hand'][card_id]
+            if destination == 'draw_top':
+                self.player['top_of_deck_ids'].append(card_id)
+                self.player['draw_pile'][card_id] = temp_card_pile[card_id]
 
     def damage_character(self, damage_target: str, damage_value: int):
         if damage_target == 'player':
@@ -234,28 +285,70 @@ class Combat(Floor):
                     enemy['current_stage_action_key'] = 0
                     self.get_new_enemy_action()
 
-
-    def get_enemy_by_id(self, enemy_id: str) -> dict:
+    def get_enemy_by_id(self, enemy_id: str) -> dict | None:
         for enemy in self.enemy_list:
             if enemy['id'] == enemy_id:
                 return enemy
-        raise KeyError(f'Enemy with id {enemy_id} not found')
+        return None
 
     def get_new_options(self) -> (list[str], int):
         cards_in_hand = self.player['hand']
         enemies = self.enemy_list
         options = []
         for card_id, card in cards_in_hand.items():
-            if card['energy_cost'] <= self.player['energy']:
-                if card['target'] == 'enemy':
-                    for enemy in enemies:
-                        if enemy['hp'] >= 0:
-                            enemy_id = enemy['id']
-                            options.append(f'play {card_id} {enemy_id}')
-                else:
+            if self.is_card_is_playable(card):
+                target_dict = {'enemy': self.generate_attackable_enemy_list(),
+                               'discard_pile': self.generate_discard_pile_list(),
+                               'hand': self.generate_hand_list()}
+                target_option_list = self.generate_target_option_list(card, target_dict)
+                for target_id in target_option_list:
+                    if card_id == target_id:
+                        continue
+                    options.append(f"play {card_id} {target_id}")
+                if len(target_option_list) == 0:
                     options.append(f'play {card_id}')
         options.append('end')
         return options, 1
+
+    def generate_attackable_enemy_list(self) -> list[str]:
+        enemy_list = []
+        for enemy in self.enemy_list:
+            if enemy['hp'] >= 0:
+                enemy_list.append(enemy['id'])
+        return enemy_list
+
+    def generate_discard_pile_list(self) -> list[str]:
+        discard_list = []
+        for card in self.player['discard_pile'].items():
+            discard_list.append(card[0])
+        return discard_list
+
+    def generate_hand_list(self) -> list[str]:
+        hand_list = []
+        for card in self.player['hand'].items():
+            hand_list.append(card[0])
+        return hand_list
+
+    def generate_target_option_list(self, card: dict, target_dict: dict) -> list[str]:
+        selected_lists = []
+        for keyword in card['target']:
+            if keyword in target_dict:
+                selected_lists.append(target_dict[keyword])
+        combinations = list(itertools.product(*selected_lists))
+        target_option_list = [' '.join(combination) for combination in combinations]
+        return target_option_list
+
+    def is_card_is_playable(self, card: dict) -> bool:
+        if card['energy_cost'] > self.player['energy']:
+            return False
+        if card['name'] == 'clash':
+            count_of_attacks_in_hand = len({k: v for k, v in self.player['hand'].items()
+                                            if 'type' in v and v['type'] == 'attack'})
+            if count_of_attacks_in_hand > 1:
+                return False
+        if card['actions'] == 'unplayable':
+            return False
+        return True
 
     def resolve_end_turn(self):
         self.player['energy'] = 0
@@ -294,7 +387,7 @@ class Combat(Floor):
                             else:
                                 break
 
-                        valid_actions = {k: v for k,v in current_stage_dict['action_probabilities'].copy().items()
+                        valid_actions = {k: v for k, v in current_stage_dict['action_probabilities'].copy().items()
                                          if 'action_max_consecutive' not in current_stage_dict or
                                          k != previous_action or
                                          current_stage_dict['action_max_consecutive'][k] <
