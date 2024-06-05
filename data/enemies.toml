@@ -102,7 +102,7 @@ action_choose_type = "ordered"
 action_order = ["beam", "bolt"]
 [enemies.sentry.actions]
 beam = [["attack 10", "player"]]
-bolt = [["add discard daze"], ["add discard daze"], ["add discard daze"]]
+bolt = [["add discard daze", "player"], ["add discard daze", "player"], ["add discard daze", "player"]]
 
 [enemies.gremlin_nob]
 max_hp = 85
