@@ -12,7 +12,7 @@ class Floor:
 
     def get_new_options(self) -> (list[str], int):
         options = []
-        if len(self.game_state['player']['potions']) > self.game_state['player']['max_potions']:
+        if sum(self.game_state['player']['potions'].values()) > self.game_state['player']['max_potions']:
             for potion in self.game_state['player']['potions']:
                 options.append(f"drop {potion}")
             return options, 1
@@ -45,12 +45,14 @@ class Floor:
             self.remove_card(action[1:])
         elif action[0] == 'heal':
             self.heal(action[1:])
+        elif action[0] == 'max_hp':
+            self.max_hp(action[1:])
         else:
             return action
 
     def drop_potion(self, action: list[str]):
         potion = action[0]
-        self.game_state['player']['potions'].remove(potion)
+        self.game_state['player']['potions'][potion] -= 1
 
     def remove_card(self, action: list[str]):
         card_to_remove = action[0]
@@ -83,7 +85,10 @@ class Floor:
         potion = action[0]
         last_underscore_index = potion.rfind('_')
         potion_name = potion[:last_underscore_index]
-        self.game_state['player']['potions'].append(potion_name)
+        if potion_name in self.game_state['player']['potions']:
+            self.game_state['player']['potions'][potion_name] += 1
+        else:
+            self.game_state['player']['potions'][potion_name] = 1
         self.remove_from_current_floor('potions', potion)
 
     def take_gold(self, action: list[str]):
@@ -96,6 +101,11 @@ class Floor:
         self.game_state['player']['hp'] += int(heal_amount)
         if self.game_state['player']['hp'] > self.game_state['player']['max_hp']:
             self.game_state['player']['hp'] = self.game_state['player']['max_hp']
+
+    def max_hp(self, action: list[str]):
+        increase_amount = int(action[0])
+        self.game_state['player']['max_hp'] += increase_amount
+        self.game_state['player']['hp'] += increase_amount
 
     def remove_from_current_floor(self, removal_type: str, removal_key: str):
         ...

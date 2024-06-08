@@ -49,7 +49,7 @@ class TestShop(unittest.TestCase):
                 "hp": 5,
                 "max_energy": 3,
                 "max_hp": 5,
-                "potions": [],
+                "potions": {},
                 "max_potions": 2,
                 "gold": 1000
             },
@@ -69,7 +69,7 @@ class TestShop(unittest.TestCase):
         shop.take_action(f"potions {random_potion_option}")
         last_underscore_index = random_potion_option.rfind('_')
         random_potion_option = random_potion_option[:last_underscore_index]
-        self.assertIn(random_potion_option, game_state['player']['potions'])
+        self.assertIn(random_potion_option, game_state['player']['potions'].keys())
         self.assertEqual(game_state['player']['gold'] + cost, 1000)
 
     def test_out_of_gold(self):
@@ -82,7 +82,7 @@ class TestShop(unittest.TestCase):
                 "hp": 5,
                 "max_energy": 3,
                 "max_hp": 5,
-                "potions": [],
+                "potions": {},
                 "max_potions": 2,
                 "gold": 0,
                 "relics": []
@@ -114,7 +114,7 @@ class TestShop(unittest.TestCase):
                 "hp": 5,
                 "max_energy": 3,
                 "max_hp": 5,
-                "potions": [],
+                "potions": {},
                 "max_potions": 2,
                 "gold": 1000,
                 "relics": []
@@ -147,7 +147,7 @@ class TestShop(unittest.TestCase):
                 "hp": 5,
                 "max_energy": 3,
                 "max_hp": 5,
-                "potions": [],
+                "potions": {},
                 "max_potions": 2,
                 "gold": 10000,
                 "relics": []
@@ -172,7 +172,7 @@ class TestShop(unittest.TestCase):
             options, _ = shop.get_new_options()
         with self.assertRaises(FloorOver):
             shop.take_action('end')
-        self.assertEqual(len(game_state['player']['potions']), 2)
+        self.assertEqual(sum(game_state['player']['potions'].values()), 2)
         self.assertEqual(len(game_state['player']['relics']), 3)
         self.assertEqual(sum(game_state['player']['deck'].values()), 7)  # 7 cards in shop 1 in deck 1 removed
 
@@ -187,7 +187,7 @@ class TestShop(unittest.TestCase):
                 "hp": 5,
                 "max_energy": 3,
                 "max_hp": 5,
-                "potions": [],
+                "potions": {},
                 "max_potions": 2,
                 "gold": 1000,
                 "relics": []
@@ -225,7 +225,7 @@ class TestShop(unittest.TestCase):
                 "hp": 5,
                 "max_energy": 3,
                 "max_hp": 5,
-                "potions": [],
+                "potions": {},
                 "max_potions": 2,
                 "gold": 1000,
                 "relics": ['smiling_mask']
@@ -262,7 +262,7 @@ class TestShop(unittest.TestCase):
                 "hp": 5,
                 "max_energy": 3,
                 "max_hp": 5,
-                "potions": [],
+                "potions": {},
                 "max_potions": 2,
                 "gold": 1000,
                 "relics": []

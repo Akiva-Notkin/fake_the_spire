@@ -43,7 +43,7 @@ class TestEndOfCombatReward(unittest.TestCase):
                 "hp": 5,
                 "max_energy": 3,
                 "max_hp": 5,
-                "potions": ['fake_potion'],
+                "potions": {'fake_potion': 1},
                 "max_potions": 2
             },
             "environment_modifiers": {
@@ -124,7 +124,7 @@ class TestEndOfCombatReward(unittest.TestCase):
                 "hp": 5,
                 "max_energy": 3,
                 "max_hp": 5,
-                "potions": ['fake_potion', 'fake_potion'],
+                "potions": {'fake_potion': 2},
                 "max_potions": 2,
                 "relics": []
             },
@@ -143,7 +143,7 @@ class TestEndOfCombatReward(unittest.TestCase):
         self.assertNotIn("end", end_of_combat_reward.get_new_options())
         end_of_combat_reward.take_action(f"drop fake_potion")
         self.assertIn(potion_name, game_state['player']['potions'])
-        self.assertEqual(len(game_state['player']['potions']), 2)
+        self.assertEqual(sum(game_state['player']['potions'].values()), 2)
 
     def test_white_beast_statue(self):
         game_state = {
@@ -155,7 +155,7 @@ class TestEndOfCombatReward(unittest.TestCase):
                 "hp": 5,
                 "max_energy": 3,
                 "max_hp": 5,
-                "potions": ['fake_potion', 'fake_potion'],
+                "potions": {'fake_potion': 2},
                 "max_potions": 2,
                 "relics": ['white_beast_statue']
             },
