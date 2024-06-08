@@ -114,7 +114,7 @@ class TestCombat(unittest.TestCase):
             }
         }
         combat = Combat(game_state, ['louse'])
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(game_state['player']['hp'], 5)
 
     def test_attack_blocked_target(self):
@@ -133,7 +133,7 @@ class TestCombat(unittest.TestCase):
         }
         combat = Combat(game_state, ['blockman'])
         enemy_id = combat.enemy_list[0]['id']
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 10)
         strike_id = get_key_by_substring(combat.player['hand'], 'strike')
         combat.take_action(f"play {strike_id} {enemy_id}")
@@ -161,7 +161,7 @@ class TestCombat(unittest.TestCase):
         defend_id = get_key_by_substring(combat.player['hand'], 'defend')
         combat.take_action(f"play {defend_id}")
         self.assertEqual(combat.player['optional_dict']['block'], 5)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(combat.player['optional_dict']['block'], 0)
         self.assertEqual(game_state['player']['hp'], 10)
 
@@ -181,12 +181,12 @@ class TestCombat(unittest.TestCase):
         }
         combat = Combat(game_state, ['blockman'])
         enemy_id = combat.enemy_list[0]['id']
-        combat.take_action("end")
+        combat.take_action("end_turn")
         bash_id = get_key_by_substring(combat.player['hand'], 'bash')
         combat.take_action(f"play {bash_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 2)
         self.assertEqual(combat.enemy_list[0]['optional_dict']['vulnerable'], 2)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         bash_id = get_key_by_substring(combat.player['hand'], 'bash')
         combat.take_action(f"play {bash_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['block'], 0)
@@ -209,7 +209,7 @@ class TestCombat(unittest.TestCase):
             }
         }
         combat = Combat(game_state, ['louse'])
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertLessEqual(game_state['player']['hp'], 0)
 
     def test_floor_over_won_combat(self):
@@ -251,16 +251,16 @@ class TestCombat(unittest.TestCase):
         }
         combat = Combat(game_state, ['acid_slime_s'])
         self.assertTrue(combat.enemy_list[0]['intent'], 'lick')
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(combat.player['optional_dict']['weak'], 1)
         self.assertTrue(combat.enemy_list[0]['intent'], 'tackle')
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(game_state['player']['hp'], 96)
         self.assertTrue(combat.enemy_list[0]['intent'], 'lick')
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(combat.player['optional_dict']['weak'], 1)
         self.assertTrue(combat.enemy_list[0]['intent'], 'tackle')
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(game_state['player']['hp'], 92)
 
     def test_gremlin_nob_combat(self):
@@ -279,20 +279,20 @@ class TestCombat(unittest.TestCase):
         }
         combat = Combat(game_state, ['gremlin_nob'])
         self.assertTrue(combat.enemy_list[0]['intent'], 'bellow')
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['enrage'], 3)
         self.assertTrue(combat.enemy_list[0]['intent'], 'skull_bash')
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(game_state['player']['hp'], 92)
         self.assertEqual(combat.player['optional_dict']['vulnerable'], 2)
         self.assertTrue(combat.enemy_list[0]['intent'], 'rush')
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(game_state['player']['hp'], 68)
         defend_id = get_key_by_substring(combat.player['hand'], 'defend')
         combat.take_action(f"play {defend_id}")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['strength'], 3)
         self.assertTrue(combat.enemy_list[0]['intent'], 'rush')
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(game_state['player']['hp'], 45)
         self.assertTrue(combat.enemy_list[0]['intent'], 'skull_bash')
 
@@ -320,7 +320,7 @@ class TestCombat(unittest.TestCase):
         combat.take_action(f"play {big_ol_hammer_id} {guardian_id}")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['mode_shift'], 20)
         self.assertEqual(combat.enemy_list[0]['hp'], 230)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(combat.enemy_list[0]['intent'], 'fierce_bash')
         big_ol_hammer_id = get_key_by_substring(combat.player['hand'], 'big_ol_hammer')
         combat.take_action(f"play {big_ol_hammer_id} {guardian_id}")
@@ -331,7 +331,7 @@ class TestCombat(unittest.TestCase):
         self.assertEqual(combat.enemy_list[0]['hp'], 199)
         self.assertEqual(combat.enemy_list[0]['stage'], 'defensive_mode')
         self.assertEqual(combat.enemy_list[0]['intent'], 'close_up')
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['sharp_hide'], 4)
         self.assertEqual(combat.enemy_list[0]['intent'], 'roll_attack')
         big_ol_hammer_id = get_key_by_substring(combat.player['hand'], 'big_ol_hammer')
@@ -342,10 +342,10 @@ class TestCombat(unittest.TestCase):
         big_ol_hammer_id = get_key_by_substring(combat.player['hand'], 'big_ol_hammer')
         combat.take_action(f"play {big_ol_hammer_id} {guardian_id}")
         self.assertEqual(game_state['player']['hp'], 96)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(combat.enemy_list[0]['intent'], 'twin_slam')
         self.assertEqual(game_state['player']['hp'], 87)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(game_state['player']['hp'], 71)
         self.assertEqual(combat.enemy_list[0]['stage'], 'offensive_mode')
         self.assertEqual(combat.enemy_list[0]['intent'], 'whirlwind')
@@ -513,11 +513,11 @@ class TestCombat(unittest.TestCase):
         strike_id = get_key_by_substring(combat.player['hand'], 'strike')
         combat.take_action(f"play {strike_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['hp'], 92)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         strike_id = get_key_by_substring(combat.player['hand'], 'strike')
         combat.take_action(f"play {strike_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['hp'], 86)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         strike_id = get_key_by_substring(combat.player['hand'], 'strike')
         combat.take_action(f"play {strike_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['hp'], 80)
@@ -546,7 +546,7 @@ class TestCombat(unittest.TestCase):
         self.assertIn(discard_id, combat.player['top_of_deck_ids'])
         self.assertIn(discard_id, combat.player['draw_pile'])
         self.assertNotIn(discard_id, combat.player['discard_pile'])
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertIn(discard_id, combat.player['hand'])
 
     def test_heavy_blade(self):
@@ -779,7 +779,7 @@ class TestCombat(unittest.TestCase):
         self.assertIn(strike_id, combat.player['draw_pile'])
         self.assertNotIn(strike_id, combat.player['hand'])
         self.assertIn(warcry_id, combat.player['exhaust_pile'])
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertIn(strike_id, combat.player['hand'])
         self.assertIn(warcry_id, combat.player['exhaust_pile'])
 
@@ -828,7 +828,7 @@ class TestCombat(unittest.TestCase):
         pommel_strike_id = get_key_by_substring(combat.player['hand'], 'pommel_strike')
         combat.take_action(f"play {pommel_strike_id} {combat.enemy_list[0]['id']}")
         self.assertEqual(len(combat.player['hand']), 6)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(len(combat.player['hand']), 5)
         battle_trance_id = get_key_by_substring(combat.player['hand'], 'battle_trance')
         combat.take_action(f"play {battle_trance_id}")
@@ -849,8 +849,8 @@ class TestCombat(unittest.TestCase):
             }
         }
         combat = Combat(game_state, ['louse'])
-        self.assertEqual(['end'], combat.get_new_options()[0])
-        combat.take_action("end")
+        self.assertEqual(['end_turn'], combat.get_new_options()[0])
+        combat.take_action("end_turn")
         enemy_id = combat.enemy_list[0]['id']
         blood_for_blood_id = get_key_by_substring(combat.player['hand'], 'blood_for_blood')
         self.assertIn(f"play {blood_for_blood_id} {enemy_id}", combat.get_new_options()[0])
@@ -926,7 +926,7 @@ class TestCombat(unittest.TestCase):
         combat.take_action(f"play {carnage_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['hp'], 80)
         self.assertEqual(len(combat.player['hand']), 4)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(len(combat.player['exhaust_pile']), 4)
         self.assertEqual(len(combat.player['discard_pile']), 1)
 
@@ -963,7 +963,7 @@ class TestCombat(unittest.TestCase):
         disarm_id = get_key_by_substring(combat.player['hand'], 'disarm')
         combat.take_action(f"play {disarm_id} {enemy_id}")
         self.assertEqual(len(combat.player['hand']), 6)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(len(combat.player['hand']), 6)
 
     def test_disarm(self):
@@ -987,7 +987,7 @@ class TestCombat(unittest.TestCase):
         combat.take_action(f"play {disarm_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['optional_dict']['strength'], -2)
         self.assertEqual(len(combat.player['exhaust_pile']), 1)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(game_state['player']['hp'], 97)
         self.assertEqual(combat.enemy_list[0]['optional_dict']['strength'], -2)
 
@@ -1109,8 +1109,8 @@ class TestCombat(unittest.TestCase):
         for i in range(4):
             power_through_id = get_key_by_substring(combat.player['hand'], 'power_through')
             combat.take_action(f"play {power_through_id}")
-        self.assertEqual(['end'], combat.get_new_options()[0])
-        combat.take_action("end")
+        self.assertEqual(['end_turn'], combat.get_new_options()[0])
+        combat.take_action("end_turn")
         self.assertEqual(len(combat.player['hand']), 10)
     def test_feel_no_pain(self):
         game_state = {
@@ -1136,7 +1136,7 @@ class TestCombat(unittest.TestCase):
         shockwave_id = get_key_by_substring(combat.player['hand'], 'shockwave')
         combat.take_action(f"play {shockwave_id}")
         self.assertEqual(combat.player['optional_dict']['block'], 3)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(game_state['player']['hp'], 100)
 
     def test_fire_breathing(self):
@@ -1160,7 +1160,7 @@ class TestCombat(unittest.TestCase):
         combat.take_action(f"play {fire_breathing_id}")
         power_through_id = get_key_by_substring(combat.player['hand'], 'power_through')
         combat.take_action(f"play {power_through_id}")
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(combat.enemy_list[0]['hp'], 8)
 
     def test_flame_barrier(self):
@@ -1181,14 +1181,14 @@ class TestCombat(unittest.TestCase):
         combat = Combat(game_state, ['louse'])
         flame_barrier_id = get_key_by_substring(combat.player['hand'], 'flame_barrier')
         combat.take_action(f"play {flame_barrier_id}")
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(combat.enemy_list[0]['hp'], 96)
         self.assertEqual(game_state['player']['hp'], 100)
         flame_barrier_id = get_key_by_substring(combat.player['hand'], 'flame_barrier')
         combat.take_action(f"play {flame_barrier_id}")
         flame_barrier_id = get_key_by_substring(combat.player['hand'], 'flame_barrier')
         combat.take_action(f"play {flame_barrier_id}")
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(combat.enemy_list[0]['hp'], 88)
         self.assertEqual(game_state['player']['hp'], 100)
 
@@ -1211,7 +1211,7 @@ class TestCombat(unittest.TestCase):
         ghostly_armor_id = get_key_by_substring(combat.player['hand'], 'ghostly_armor')
         combat.take_action(f"play {ghostly_armor_id}")
         self.assertEqual(combat.player['optional_dict']['block'], 10)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(game_state['player']['hp'], 100)
         self.assertEqual(len(combat.player['hand']), 1)
 
@@ -1329,7 +1329,7 @@ class TestCombat(unittest.TestCase):
         self.assertEqual(combat.player['optional_dict']['block'], 75)
         self.assertEqual(len(combat.player['hand']), 10)
         self.assertEqual(len(combat.player['discard_pile']), 3)
-        combat.take_action("end")
+        combat.take_action("end_turn")
 
     # def test_metallisize(self):
 
@@ -1384,7 +1384,7 @@ class TestCombat(unittest.TestCase):
         combat.take_action(f"play {defend_id}")
         combat.take_action(f"play {strike_id} {enemy_id}")
         self.assertEqual(combat.player['optional_dict']['block'], 8)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         combat.take_action(f"play {strike_id} {enemy_id}")
         self.assertEqual(combat.player['optional_dict']['block'], 0)
 
@@ -1408,7 +1408,7 @@ class TestCombat(unittest.TestCase):
         enemy_id = combat.enemy_list[0]['id']
         combat.take_action(f"play {rampage_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['hp'], 92)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         combat.take_action(f"play {rampage_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['hp'], 79)
         rampage_id = get_key_by_substring(combat.player['hand'], 'rampage')
@@ -1637,10 +1637,10 @@ class TestCombat(unittest.TestCase):
             defend_id = get_key_by_substring(combat.player['hand'], 'defend')
             combat.take_action(f"play {defend_id}")
         self.assertEqual(combat.player['optional_dict']['block'], 20)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(game_state['player']['hp'], 100)
         self.assertEqual(combat.player['optional_dict']['block'], 15)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(combat.player['optional_dict']['block'], 10)
 
     def test_berserk(self):
@@ -1664,7 +1664,7 @@ class TestCombat(unittest.TestCase):
         combat.take_action(f"play {berserk_id}")
         berserk_id = get_key_by_substring(combat.player['hand'], 'berserk')
         combat.take_action(f"play {berserk_id}")
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(game_state['player']['hp'], 93)
         self.assertEqual(combat.player['energy'], 12)
         self.assertEqual(combat.player['optional_dict']['vulnerable'], 3)
@@ -1711,7 +1711,7 @@ class TestCombat(unittest.TestCase):
         combat.take_action(f"play {brutality_id}")
         brutality_id = get_key_by_substring(combat.player['hand'], 'brutality')
         combat.take_action(f"play {brutality_id}")
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(game_state['player']['hp'], 93)
         self.assertEqual(len(combat.player['hand']), 7)
 
@@ -1734,10 +1734,10 @@ class TestCombat(unittest.TestCase):
         combat = Combat(game_state, ['louse'])
         demon_form_id = get_key_by_substring(combat.player['hand'], 'demon_form')
         combat.take_action(f"play {demon_form_id}")
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(game_state['player']['hp'], 95)
         self.assertEqual(combat.player['optional_dict']['strength'], 2)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(combat.player['optional_dict']['strength'], 4)
 
     def test_double_tap(self):
@@ -1903,7 +1903,7 @@ class TestCombat(unittest.TestCase):
         limit_break_id = get_key_by_substring(combat.player['hand'], 'limit_break')
         combat.take_action(f"play {limit_break_id}")
         self.assertEqual(combat.player['optional_dict']['strength'], 12)
-        combat.take_action("end")
+        combat.take_action("end_turn")
         self.assertEqual(combat.player['optional_dict']['strength'], 8)
 
     def test_offering(self):
@@ -1928,3 +1928,279 @@ class TestCombat(unittest.TestCase):
         self.assertEqual(combat.player['energy'], 12)
         self.assertEqual(len(combat.player['hand']), 7)
         self.assertEqual(len(combat.player['exhaust_pile']), 1)
+
+    def test_bandage_up(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "bandage_up": 5,
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+
+        combat = Combat(game_state, ['louse'])
+        bandage_up_id = get_key_by_substring(combat.player['hand'], 'bandage_up')
+        combat.take_action(f"play {bandage_up_id}")
+        self.assertEqual(game_state['player']['hp'], 100)
+        combat.take_action("end_turn")
+        self.assertEqual(game_state['player']['hp'], 95)
+        bandage_up_id = get_key_by_substring(combat.player['hand'], 'bandage_up')
+        combat.take_action(f"play {bandage_up_id}")
+        self.assertEqual(game_state['player']['hp'], 99)
+        bandage_up_id = get_key_by_substring(combat.player['hand'], 'bandage_up')
+        combat.take_action(f"play {bandage_up_id}")
+        self.assertEqual(game_state['player']['hp'], 100)
+        self.assertEqual(len(combat.player['hand']), 2)
+
+    def test_blind(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "blind": 5
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+
+        combat = Combat(game_state, ['louse'])
+        blind_id = get_key_by_substring(combat.player['hand'], 'blind')
+        enemy_id = combat.enemy_list[0]['id']
+        combat.take_action(f"play {blind_id} {enemy_id}")
+        self.assertEqual(combat.enemy_list[0]['optional_dict']['weak'], 2)
+        combat.take_action("end_turn")
+        self.assertEqual(game_state['player']['hp'], 97)
+
+    def test_dark_shackles(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "dark_shackles": 5
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+
+        combat = Combat(game_state, ['louse'])
+        dark_shackles_id = get_key_by_substring(combat.player['hand'], 'dark_shackles')
+        enemy_id = combat.enemy_list[0]['id']
+        combat.take_action(f"play {dark_shackles_id} {enemy_id}")
+        combat.take_action("end_turn")
+        self.assertEqual(game_state['player']['hp'], 100)
+        combat.take_action("end_turn")
+        self.assertEqual(game_state['player']['hp'], 95)
+
+    def test_finesse(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "finesse": 5,
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+
+        combat = Combat(game_state, ['louse'])
+        finesse_id = get_key_by_substring(combat.player['hand'], 'finesse')
+        combat.take_action(f"play {finesse_id}")
+        self.assertEqual(combat.player['optional_dict']['block'], 2)
+        self.assertEqual(len(combat.player['hand']), 4)
+        self.assertEqual(len(combat.player['discard_pile']), 1)
+
+    def test_flash_of_steel(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "flash_of_steel": 5,
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+
+        combat = Combat(game_state, ['louse'])
+        flash_of_steel_id = get_key_by_substring(combat.player['hand'], 'flash_of_steel')
+        combat.take_action(f"play {flash_of_steel_id}")
+        self.assertEqual(len(combat.player['hand']), 4)
+        self.assertEqual(len(combat.player['discard_pile']), 1)
+        flash_of_steel_id = get_key_by_substring(combat.player['hand'], 'flash_of_steel')
+        combat.take_action(f"play {flash_of_steel_id}")
+        self.assertEqual(len(combat.player['hand']), 4)
+        self.assertEqual(len(combat.player['discard_pile']), 1)
+
+    def test_good_instincts(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "good_instincts": 5,
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+
+        combat = Combat(game_state, ['louse'])
+        good_instincts_id = get_key_by_substring(combat.player['hand'], 'good_instincts')
+        combat.take_action(f"play {good_instincts_id}")
+        self.assertEqual(combat.player['optional_dict']['block'], 6)
+        self.assertEqual(len(combat.player['hand']), 4)
+        self.assertEqual(len(combat.player['discard_pile']), 1)
+
+    def test_panacea(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "panacea": 5,
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+
+        combat = Combat(game_state, ['acid_slime_s'])
+        panacea_id = get_key_by_substring(combat.player['hand'], 'panacea')
+        combat.take_action(f"play {panacea_id}")
+        self.assertNotIn('weak', combat.player['optional_dict'])
+        combat.take_action("end_turn")
+        self.assertNotIn('weak', combat.player['optional_dict'])
+
+    def test_panic_button(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "panic_button": 1,
+                    "defend": 4
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+
+        combat = Combat(game_state, ['louse'])
+        defend_id = get_key_by_substring(combat.player['hand'], 'defend')
+        combat.take_action(f"play {defend_id}")
+        panic_button_id = get_key_by_substring(combat.player['hand'], 'panic_button')
+        combat.take_action(f"play {panic_button_id}")
+        defend_id = get_key_by_substring(combat.player['hand'], 'defend')
+        combat.take_action(f"play {defend_id}")
+        self.assertEqual(combat.player['optional_dict']['block'], 35)
+        combat.take_action("end_turn")
+        self.assertEqual(game_state['player']['hp'], 100)
+        defend_id = get_key_by_substring(combat.player['hand'], 'defend')
+        combat.take_action(f"play {defend_id}")
+        self.assertEqual(combat.player['optional_dict']['block'], 0)
+        combat.take_action("end_turn")
+        self.assertEqual(game_state['player']['hp'], 95)
+        combat.take_action("end_turn")
+        defend_id = get_key_by_substring(combat.player['hand'], 'defend')
+        combat.take_action(f"play {defend_id}")
+        self.assertEqual(combat.player['optional_dict']['block'], 5)
+
+    def test_swift_strike(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "swift_strike": 5,
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+
+        combat = Combat(game_state, ['louse'])
+        swift_strike_id = get_key_by_substring(combat.player['hand'], 'swift_strike')
+        enemy_id = combat.enemy_list[0]['id']
+        combat.take_action(f"play {swift_strike_id} {enemy_id}")
+        self.assertEqual(combat.enemy_list[0]['hp'], 93)
+        self.assertEqual(combat.player['energy'], 3)
+
+    def test_trip(self):
+        game_state = {
+            "floor_num": 1,
+            "act": 1,
+            "player": {
+                "deck": {
+                    "trip": 5,
+                },
+                "hp": 100,
+                "max_energy": 3,
+                "max_hp": 100,
+                "potions": []
+            }
+        }
+
+        combat = Combat(game_state, ['louse'])
+        trip_id = get_key_by_substring(combat.player['hand'], 'trip')
+        enemy_id = combat.enemy_list[0]['id']
+        combat.take_action(f"play {trip_id} {enemy_id}")
+        self.assertEqual(combat.enemy_list[0]['optional_dict']['vulnerable'], 2)
+
+    def test_panache(self):
+        game_state = {
+                    "floor_num": 1,
+                    "act": 1,
+                    "player": {
+                        "deck": {
+                            "panache": 1,
+                            "draw_two": 4
+                        },
+                        "hp": 100,
+                        "max_energy": 3,
+                        "max_hp": 100,
+                        "potions": []
+                    }
+                }
+
+        combat = Combat(game_state, ['louse', 'louse'])
+        panache_id = get_key_by_substring(combat.player['hand'], 'panache')
+        combat.take_action(f"play {panache_id}")
+        for i in range(4):
+            draw_two_id = get_key_by_substring(combat.player['hand'], 'draw_two')
+            combat.take_action(f"play {draw_two_id}")
+        self.assertEqual(combat.enemy_list[0]['hp'], 100)
+        self.assertEqual(combat.enemy_list[1]['hp'], 100)
+        draw_two_id = get_key_by_substring(combat.player['hand'], 'draw_two')
+        combat.take_action(f"play {draw_two_id}")
+        self.assertEqual(combat.enemy_list[0]['hp'], 90)
+        self.assertEqual(combat.enemy_list[1]['hp'], 90)
+

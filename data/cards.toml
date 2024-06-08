@@ -73,7 +73,7 @@ color = "red"
 
 [cards.flex]
 type = "skill"
-actions = [["apply strength 2", "self"], ["apply strength_debuff 2", "self"]]
+actions = [["apply strength 2", "self"], ["apply strength_buff -2", "self"]]
 target = ["self"]
 energy_cost = 0
 rarity = "common"
@@ -605,28 +605,28 @@ color = "colorless"
 
 [cards.dark_shackles]
 type = "skill"
-actions = [["apply shackles 9", "enemy"], ["put hand exhaust", "self_card"]]
+actions = [["apply strength_buff 9", "enemy"], ["apply strength -9", "enemy"], ["put hand exhaust", "self_card"]]
 target = ["enemy"]
 energy_cost = 0
 rarity = "uncommon"
 color = "colorless"
 
-[cards.deep_breath]
-type = "skill"
-actions = [["shuffle discard draw", "self"], ["draw", "self"]]
-target = ["self"]
-energy_cost = 0
-rarity = "uncommon"
-color = "colorless"
+#[cards.deep_breath]
+#type = "skill"
+#actions = [["shuffle discard draw", "self"], ["draw", "self"]]
+#target = ["self"]
+#energy_cost = 0
+#rarity = "uncommon"
+#color = "colorless"
 
-[cards.dramatic_entrance]
-type = "attack"
-actions = [["attack 8", "enemy"], ["put hand exhaust", "self_card"]]
-target = ["all"]
-energy_cost = 0
-rarity = "uncommon"
-color = "colorless"
-start_of_combat = "innate"
+#[cards.dramatic_entrance]
+#type = "attack"
+#actions = [["attack 8", "enemy"], ["put hand exhaust", "self_card"]]
+#target = ["all"]
+#energy_cost = 0
+#rarity = "uncommon"
+#color = "colorless"
+#start_of_combat = "innate"
 
 [cards.finesse]
 type = "skill"
@@ -652,22 +652,22 @@ energy_cost = 0
 rarity = "uncommon"
 color = "colorless"
 
-[cards.impatience]
-type = "skill"
-actions = [["apply impatience 1", "self"], ["draw", "self"], ["draw", "self"], ["apply impatience -1", "self"]]
-target = ["self"]
-energy_cost = 0
-rarity = "uncommon"
-color = "colorless"
+#[cards.impatience]
+#type = "skill"
+#actions = [["apply impatience 1", "self"], ["draw", "self"], ["draw", "self"], ["apply impatience -1", "self"]]
+#target = ["self"]
+#energy_cost = 0
+#rarity = "uncommon"
+#color = "colorless"
 
-[cards.mind_blast]
-type = "attack"
-actions = [["apply mind_blast 1", "self"], ["attack 0", "enemy"], ["apply mind_blast -1", "self"]]
-target = ["enemy"]
-energy_cost = 2
-rarity = "uncommon"
-color = "colorless"
-start_of_combat = "innate"
+#[cards.mind_blast]
+#type = "attack"
+#actions = [["apply mind_blast 1", "self"], ["attack 0", "enemy"], ["apply mind_blast -1", "self"]]
+#target = ["enemy"]
+#energy_cost = 2
+#rarity = "uncommon"
+#color = "colorless"
+#start_of_combat = "innate"
 
 [cards.panacea]
 type = "skill"
@@ -701,21 +701,21 @@ energy_cost = 0
 rarity = "uncommon"
 color = "colorless"
 
-[cards.hand_of_greed]
-type = "attack"
-actions = [["attack 20", "enemy"], ["fatal gold 20", "enemy"]]
-target = ["enemy"]
-energy_cost = 2
-rarity = "rare"
-color = "colorless"
+#[cards.hand_of_greed]
+#type = "attack"
+#actions = [["attack 20", "enemy"], ["fatal gold 20", "enemy"]]
+#target = ["enemy"]
+#energy_cost = 2
+#rarity = "rare"
+#color = "colorless"
 
-[cards.magnetism]
-type = "power"
-actions = [["apply magnetism 1", "self"]]
-target = ["self"]
-energy_cost = 2
-rarity = "rare"
-color = "colorless"
+#[cards.magnetism]
+#type = "power"
+#actions = [["apply magnetism 1", "self"]]
+#target = ["self"]
+#energy_cost = 2
+#rarity = "rare"
+#color = "colorless"
 
 [cards.master_of_strategy]
 type = "skill"
@@ -735,27 +735,27 @@ color = "colorless"
 
 [cards.panache]
 type = "power"
-actions = [["apply panache 1", "self"]]
+actions = [["apply panache 10", "self"]]
 target = ["self"]
 energy_cost = 0
 rarity = "rare"
 color = "colorless"
 
-[cards.sadistic_nature]
-type = "power"
-actions = [["apply sadistic_nature 1", "self"]]
-target = ["self"]
-energy_cost = 0
-rarity = "rare"
-color = "colorless"
+#[cards.sadistic_nature]
+#type = "power"
+#actions = [["apply sadistic_nature 5", "self"]]
+#target = ["self"]
+#energy_cost = 0
+#rarity = "rare"
+#color = "colorless"
 
-[cards.the_bomb]
-type = "skill"
-actions = [["apply the_bomb 3", "enemy"]]
-target = ["enemy"]
-energy_cost = 2
-rarity = "rare"
-color = "colorless"
+#[cards.the_bomb]
+#type = "skill"
+#actions = [["apply the_bomb 3", "enemy"]]
+#target = ["enemy"]
+#energy_cost = 2
+#rarity = "rare"
+#color = "colorless"
 
 [cards.apparition]
 type = "skill"

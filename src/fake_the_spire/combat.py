@@ -45,39 +45,37 @@ class Combat(Floor):
         self.start_turn()
 
     def take_action(self, action: str):
-        logger.debug(f'Action: {action}')
-        logger.debug(f'Old state: {self.to_dict()}')
-        action = action.split(' ')
-        if action[0] == 'attack':
-            self.attack(action[1:])
-        elif action[0] == 'apply':
-            self.apply(action[1:])
-        elif action[0] == 'draw':
-            self.draw(action[1:])
-        elif action[0] == 'play':
-            self.play(action[1:])
-        elif action[0] == 'end':
-            self.resolve_end_turn()
-        elif action[0] == 'gain_energy':
-            self.gain_energy(action[1:])
-        elif action[0] == 'stage':
-            self.update_stage(action[1:])
-        elif action[0] == 'damage':
-            self.damage(action[1:])
-        elif action[0] == 'blockable_damage':
-            self.blockable_damage(action[1:])
-        elif action[0] == 'add':
-            self.add_card(action[1:])
-        elif action[0] == 'put':
-            self.put_card(action[1:])
-        elif action[0] == 'duplicate':
-            self.duplicate_card(action[1:])
-        elif action[0] == 'rampage':
-            self.rampage(action[1:])
-        else:
-            logger.info(f'Invalid action: {action}')
+        action = super().take_action(action)
+        if action is not None:
+            if action[0] == 'attack':
+                self.attack(action[1:])
+            elif action[0] == 'apply':
+                self.apply(action[1:])
+            elif action[0] == 'draw':
+                self.draw(action[1:])
+            elif action[0] == 'play':
+                self.play(action[1:])
+            elif action[0] == 'end_turn':
+                self.resolve_end_turn()
+            elif action[0] == 'gain_energy':
+                self.gain_energy(action[1:])
+            elif action[0] == 'stage':
+                self.update_stage(action[1:])
+            elif action[0] == 'damage':
+                self.damage(action[1:])
+            elif action[0] == 'blockable_damage':
+                self.blockable_damage(action[1:])
+            elif action[0] == 'add':
+                self.add_card(action[1:])
+            elif action[0] == 'put':
+                self.put_card(action[1:])
+            elif action[0] == 'duplicate':
+                self.duplicate_card(action[1:])
+            elif action[0] == 'rampage':
+                self.rampage(action[1:])
+            else:
+                logger.info(f'Invalid action: {action}')
 
-        logger.debug(f'Updated state: {self.to_dict()}')
         if all(enemy['hp'] <= 0 for enemy in self.enemy_list):
             raise FloorOver
 
@@ -172,6 +170,11 @@ class Combat(Floor):
             if 'limit_break' in user['optional_dict'] and user['optional_dict']['limit_break'] > 0:
                 option_value += user['optional_dict']['strength'] if 'strength' in user['optional_dict'] else 0
 
+        if option_key in ['vulnerable', 'weak', 'frail']:
+            if 'artifact' in target['optional_dict'] and target['optional_dict']['artifact'] > 0:
+                target['optional_dict']['artifact'] -= 1
+                return
+
         if option_key in target['optional_dict']:
             target['optional_dict'][option_key] += option_value
         else:
@@ -208,6 +211,16 @@ class Combat(Floor):
         card_id = action[0]
         target_list = action[1:]
         card = self.player['hand'][card_id]
+
+        if 'panache' in self.player['optional_dict'] and self.player['optional_dict']['panache'] > 0:
+            if 'panache_count' not in self.player['optional_dict']:
+                self.player['optional_dict']['panache_count'] = 0
+            self.player['optional_dict']['panache_count'] += 1
+            if self.player['optional_dict']['panache_count'] >= 5:
+                self.player['optional_dict']['panache_count'] = 0
+                for enemy in self.enemy_list:
+                    self.take_action(f"blockable_damage {self.player['optional_dict']['panache']} player {enemy['id']}")
+
         if 'repeat' in card and card['repeat']:
             repeat_count = self.player['energy']
             energy_cost = 1
@@ -274,6 +287,11 @@ class Combat(Floor):
         for (card_action, card_target) in card_actions:
             target_string_list = self.generate_target_string_list(card_target, target_dict)
             for target_string in target_string_list:
+                card_action_list = card_action.split(' ')
+                if card_action_list[0] == 'apply' and card_action_list[1] == 'block':
+                    if 'panic_button' in self.player['optional_dict'] and self.player['optional_dict']['panic_button'] > 0:
+                        card_action_list[2] = '0'
+                card_action = ' '.join(card_action_list)
                 self.take_action(f"{card_action} player {target_string}")
 
     @staticmethod
@@ -411,6 +429,8 @@ class Combat(Floor):
         self.player['hand'][f'{card["name"]}_{uuid.uuid4()}'] = card
 
     def damage_character(self, damage_target: str, damage_value: int):
+        if damage_value <= 0:
+            return
         if damage_target == 'player':
             self.game_state['player']['hp'] -= damage_value
             self.take_action("apply damage_instances 1 player player")
@@ -449,7 +469,7 @@ class Combat(Floor):
                     options.append(f"play {card_id} {target_id}")
                 if len(target_option_list) == 0:
                     options.append(f'play {card_id}')
-        options.append('end')
+        options.append('end_turn')
         return options, 1
 
     def generate_attackable_enemy_list(self) -> list[str]:
@@ -589,17 +609,17 @@ class Combat(Floor):
     def end_of_turn_optional_dict_update(self):
         alive_characters = [enemy for enemy in self.enemy_list if enemy['hp'] > 0] + [self.player]
         for character in alive_characters:
-            for decrement_optional_key in ['vulnerable', 'weak']:
+            for decrement_optional_key in ['vulnerable', 'weak', 'frail', 'panic_button']:
                 if decrement_optional_key in character['optional_dict']:
                     character['optional_dict'][decrement_optional_key] = (
                             character['optional_dict'][decrement_optional_key] - 1)
                     if character['optional_dict'][decrement_optional_key] < 0:
                         character['optional_dict'][decrement_optional_key] = 0
-            if 'strength_debuff' in character['optional_dict']:
+            if 'strength_buff' in character['optional_dict']:
                 if 'strength' not in character['optional_dict']:
                     character['optional_dict']['strength'] = 0
-                character['optional_dict']['strength'] -= character['optional_dict']['strength_debuff']
-                character['optional_dict']['strength_debuff'] = 0
+                character['optional_dict']['strength'] += character['optional_dict']['strength_buff']
+                character['optional_dict']['strength_buff'] = 0
             if 'battle_trance' in character['optional_dict']:
                 character['optional_dict']['battle_trance'] = 0
             if 'flame_barrier' in character['optional_dict']:
