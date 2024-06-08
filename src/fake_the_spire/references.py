@@ -46,6 +46,20 @@ class BaseReference:
             return 'poop', {'name': 'poop', 'rarity': 'base'}
         return random.choice(potential_entities)
 
+    def generate_entity_dict_from_init_dict(self, init_dict: dict) -> dict:
+        entities = {}
+        for key, value in init_dict.items():
+            for i in range(value):
+                entities.update(self.generate_entity_by_name(key))
+        return entities
+
+    def generate_entity_by_name(self, name: str) -> dict:
+        entity_dict = {}
+        entity_instance = self.all_entities[name].copy()
+        entity_instance['name'] = name
+        entity_dict[f'{name}_{uuid.uuid4()}'] = entity_instance
+        return entity_dict
+
 
 class EnemyReference(BaseReference):
     @staticmethod
@@ -78,20 +92,6 @@ class CardReference(BaseReference):
         if CardReference._instance is None:
             CardReference._instance = CardReference(config.CARD_TOML, 'cards')
         return CardReference._instance
-
-    def generate_deck_dict_from_init_dict(self, init_dict: dict) -> dict:
-        cards = {}
-        for key, value in init_dict.items():
-            for i in range(value):
-                cards.update(self.generate_card_by_name(key))
-        return cards
-
-    def generate_card_by_name(self, name: str) -> dict:
-        card_dict = {}
-        card_instance = self.all_entities[name].copy()
-        card_instance['name'] = name
-        card_dict[f'{name}_{uuid.uuid4()}'] = card_instance
-        return card_dict
 
     def get_random_card(self) -> list[str]:
         return random.choice(list(self.all_entities.items()))

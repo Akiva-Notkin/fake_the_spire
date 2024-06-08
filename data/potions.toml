@@ -1,15 +1,101 @@
 [potions]
 [potions.block_potion]
-target = "self"
-actions = ["apply block 12"]
+color = "colorless"
+target = ["self"]
+actions = [["apply block 12", "self"]]
 rarity = "common"
 
-[potions.cultist_potion]
+[potions.energy_potion]
+color = "colorless"
 target = "self"
-actions = ["apply ritual 1"]
+actions = [["gain_energy 2", "self"]]
+rarity = "common"
+
+[potions.dexterity_potion]
+color = "colorless"
+target = "self"
+actions = [["apply dexterity 2", "self"]]
+rarity = "common"
+
+[potions.explosive_potion]
+color = "colorless"
+target = ["all"]
+actions = [["blockable_damage 10", "enemy"]]
+rarity = "common"
+
+[potions.fire_potion]
+color = "colorless"
+target = ["enemy"]
+actions = [["blockable_damage 20", "enemy"]]
+rarity = "common"
+
+[potions.fruit_juice]
+color = "colorless"
+target = ["self"]
+actions = [["max_hp 5", "self"]]
+rarity = "common"
+
+[potions.fear_potion]
+color = "colorless"
+target = ["enemy"]
+actions = [["apply vulnerable 3", "enemy"]]
+rarity = "common"
+
+[potions.strength_potion]
+color = "colorless"
+target = ["self"]
+actions = [["apply strength 2", "self"]]
+rarity = "common"
+
+[potions.weak_potion]
+color = "colorless"
+target = ["enemy"]
+actions = [["apply weak 3", "enemy"]]
+rarity = "common"
+
+[potions.speed_potion]
+color = "colorless"
+target = ["self"]
+actions = [["apply dexterity 5", "self"], ["apply dexterity_buff -5", "self"]]
+rarity = "common"
+
+[potions.regen_potion]
+color = "colorless"
+target = ["self"]
+actions = [["apply regen 5", "self"]]
+rarity = "uncommon"
+
+[potions.ancient_potion]
+color = "colorless"
+target = ["self"]
+actions = [["apply artifact 1", "self"]]
+rarity = "uncommon"
+
+[potions.essence_of_steel]
+color = "colorless"
+target = ["self"]
+actions = [["apply plated_armor 4", "self"]]
+rarity = "uncommon"
+
+[potions.flex_potion]
+color = "colorless"
+target = ["self"]
+actions = [["apply strength 5", "self"], ["apply strength_buff -5", "self"]]
+rarity = "common"
+
+[potions.swift_potion]
+color = "colorless"
+target = ["self"]
+actions = [["draw", "self"], ["draw", "self"], ["draw", "self"]]
+
+[potions.cultist_potion]
+color = "colorless"
+target = ["self"]
+actions = [["apply ritual 1", "self"]]
 rarity = "rare"
 
 [potions.duplication_potion]
-target = "self"
-actions = ["apply duplication 1"]
+color = "colorless"
+target = ["self"]
+actions = [["apply duplication 1", "self"]]
 rarity = "uncommon"
