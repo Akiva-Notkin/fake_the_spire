@@ -1,24 +1,24 @@
 [relics]
 [relics.paper_phrog]
 rarity = "uncommon"
-class = "ironclad"
+color = "red"
 
 [relics.burning_blood]
 rarity = "base"
-class = "ironclad"
+color = "red"
 
 [relics.white_beast_statue]
 rarity = "uncommon"
-class = "any"
+color = "colorless"
 
 [relics.du-vu_doll]
 rarity = "rare"
-class = "any"
+color = "colorless"
 
 [relics.art_of_war]
 rarity = "common"
-class = "any"
+color = "colorless"
 
 [relics.chemical_x]
 rarity = "shop"
-class = "any"
+color = "colorless"

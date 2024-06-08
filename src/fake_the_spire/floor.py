@@ -26,8 +26,6 @@ class Floor:
         ...
 
     def take_action(self, action: str):
-        logger.debug(f'Action: {action}')
-        logger.debug(f'Old state: {self.to_dict()}')
         action = action.split(' ')
         if action[0] == 'end':
             raise FloorOver

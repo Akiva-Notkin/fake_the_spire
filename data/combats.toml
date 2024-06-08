@@ -4,12 +4,12 @@ act = 1
 combat_type = 'first_hallway'
 enemies = ['cultist']
 weight = 1
-
-[combats.small_slimes]
-act = 1
-combat_type = 'first_hallway'
-enemies = ['acid_slime_m', 'acid_slime_s']
-weight = 1
+#
+#[combats.small_slimes]
+#act = 1
+#combat_type = 'first_hallway'
+#enemies = ['acid_slime_m', 'acid_slime_s']
+#weight = 1
 
 [combats.jaw_worm]
 act = 1
@@ -26,7 +26,7 @@ weight = 1
 [combats.exordium_wildlife]
 act = 1
 combat_type = 'hallway'
-enemies = ['jaw_worm', 'acid_slime_m']
+enemies = ['jaw_worm']
 weight = 1.5
 
 [combats.gremlin_nob]

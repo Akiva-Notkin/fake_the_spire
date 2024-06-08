@@ -1801,9 +1801,7 @@ class TestCombat(unittest.TestCase):
             "act": 1,
             "player": {
                 "deck": {
-                    "immolate": 2,
-                    "defend": 3,
-                    "strike": 3
+                    "immolate": 5,
                 },
                 "hp": 100,
                 "max_energy": 10,

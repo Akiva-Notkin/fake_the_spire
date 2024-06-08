@@ -233,8 +233,9 @@ class Combat(Floor):
                 for enemy in self.enemy_list:
                     self.take_action(f"blockable_damage {self.player['optional_dict']['panache']} player {enemy['id']}")
 
-        if 'duplication' in self.player['optional_dict'] and self.player['optional_dict']['duplication'] > 0:
-            self.take_action(f"play {' '.join(action)}")
+        # if 'duplication' in self.player['optional_dict'] and self.player['optional_dict']['duplication'] > 0:
+        #     self.player['optional_dict']['duplication'] -= 1
+        #     self.take_action(f"play {' '.join(action)}")
 
         if 'repeat' in card and card['repeat']:
             repeat_count = self.player['energy']
@@ -243,6 +244,11 @@ class Combat(Floor):
             repeat_count = 1
             energy_cost = card["energy_cost"]
         for i in range(repeat_count):
+            if card_id not in self.player['hand']:
+                print("BAD")
+                print()
+                print(self.player['hand'])
+                print(card_id)
             self.resolve_action_list(card_id, "actions", target_list)
             self.take_action(f'gain_energy -{energy_cost}')
 

@@ -14,20 +14,20 @@ class Game:
     def __init__(self, character: str):
         self.floor = None
         self.game_state = {'floor_num': 1, 'act': 1,
-                           'player': {'hp': 75, 'max_hp': 75, 'max_energy': 3,
+                           'player': {'hp': 500, 'max_hp': 500, 'max_energy': 3,
                                       'deck': {'strike': 5, 'bash': 1, 'defend': 4},
-                                      'potions': [], 'max_potions': 2,
+                                      'potions': {}, 'max_potions': 2,
                                       'relics': ['burning_blood'], 'gold': 99,
                                       'keys': {'green': False, 'blue': False, 'red': False}},
                            'environment_modifiers': {
                                'potion_reward_chance': 0.4,
                                'card_reward_offset': -5,
                                'unknown_room_probability_dict':
-                                   {'hallway': .1, 'treasure': .02, 'shop': .03}},
+                                   {'hallway': .1, 'treasure': .02, 'shop': .03},
                                'previous_removes': 0,
                                'color': 'red',
                                'seen_relics': []
-                           }
+                           }}
         self.current_options = []
         self.current_options_amount = 0
         self.enemy_reference = EnemyReference(config.ENEMY_TOML, "enemies", reset=True)
@@ -60,7 +60,7 @@ class Game:
     def get_next_floor(self):
         if self.floor.floor_type == "combat":
             combat_type = self.floor.combat_type
-            return EndOfCombatReward(self.game_state, combat_type=combat_type)
+            return EndOfCombatReward(self.game_state, combat_type=combat_type, card_reward_count=3)
 
         elif self.floor.floor_type == "end_of_combat_reward":
             self.game_state['floor_num'] += 1

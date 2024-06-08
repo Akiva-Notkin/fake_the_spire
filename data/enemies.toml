@@ -31,7 +31,8 @@ block = [["apply block 10", "self"]]
 
 [enemies.jaw_worm]
 max_hp = 10
-action_start_combat = "chomp"
+stage_start_combat = "base"
+[enemies.jaw_worm.base]
 action_probabilities = {"bellow" = 0.45, "thrash" = 0.3, "chomp" = 0.25}
 action_max_consecutive = {"bellow" = 1, "thrash" = 2, "chomp" = 1}
 action_choose_type = "random"
@@ -39,10 +40,10 @@ action_choose_type = "random"
 bellow = [["apply strength 5", "self"], ["apply block 9", "self"]]
 thrash = [["attack 7", "player"], ["apply block 5", "self"]]
 chomp = [["attack 12", "player"]]
-
-[enemies.acid_slime_m]
-max_hp = 10
-actions = [["attack 5", "player"]]
+#
+#[enemies.acid_slime_m]
+#max_hp = 10
+#actions = [["attack 5", "player"]]
 
 [enemies.acid_slime_s]
 max_hp = 10
@@ -56,9 +57,9 @@ action_choose_type = "random"
 lick = [["apply weak 1", "player"]]
 tackle = [["attack 4", "player"]]
 
-[enemies.acid_slime_l]
-max_hp = 15
-actions = [["attack 5", "player"]]
+#[enemies.acid_slime_l]
+#max_hp = 15
+#actions = [["attack 5", "player"]]
 
 [enemies.the_guardian]
 max_hp = 250

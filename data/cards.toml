@@ -78,14 +78,14 @@ target = ["self"]
 energy_cost = 0
 rarity = "common"
 color = "red"
-
-[cards.havoc]
-type = "skill"
-actions = [["exhaust", "top_of_deck"], ["play", "top_of_deck"]]
-target = ["self"]
-energy_cost = 1
-rarity = "common"
-color = "red"
+#
+#[cards.havoc]
+#type = "skill"
+#actions = [["exhaust", "top_of_deck"], ["play", "top_of_deck"]]
+#target = ["self"]
+#energy_cost = 1
+#rarity = "common"
+#color = "red"
 
 [cards.headbutt]
 type = "attack"
@@ -321,8 +321,8 @@ energy_cost = 1
 rarity = "uncommon"
 color = "red"
 
-[cards.infernal_blade]
-type = "skill"
+#[cards.infernal_blade]
+#type = "skill"
 
 [cards.inflame]
 type = "power"
@@ -340,13 +340,13 @@ energy_cost = 1
 rarity = "uncommon"
 color = "red"
 
-[cards.metallicize]
-type = "power"
-actions = [["apply metallicize 3", "self"]]
-target = ["self"]
-energy_cost = 1
-rarity = "uncommon"
-color = "red"
+#[cards.metallicize]
+#type = "power"
+#actions = [["apply def metallicize 3", "self"]]
+#target = ["self"]
+#energy_cost = 1
+#rarity = "uncommon"
+#color = "red"
 
 [cards.power_through]
 type = "skill"

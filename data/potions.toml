@@ -93,9 +93,9 @@ color = "colorless"
 target = ["self"]
 actions = [["apply ritual 1", "self"]]
 rarity = "rare"
-
-[potions.duplication_potion]
-color = "colorless"
-target = ["self"]
-actions = [["apply duplication 1", "self"]]
-rarity = "uncommon"
+#
+#[potions.duplication_potion]
+#color = "colorless"
+#target = ["self"]
+#actions = [["apply duplication 1", "self"]]
+#rarity = "uncommon"
