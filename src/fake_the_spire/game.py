@@ -14,7 +14,7 @@ class Game:
     def __init__(self, character: str):
         self.floor = None
         self.game_state = {'floor_num': 1, 'act': 1,
-                           'player': {'hp': 500, 'max_hp': 500, 'max_energy': 3,
+                           'player': {'hp': 100, 'max_hp': 100, 'max_energy': 3,
                                       'deck': {'strike': 5, 'bash': 1, 'defend': 4},
                                       'potions': {}, 'max_potions': 2,
                                       'relics': ['burning_blood'], 'gold': 99,
