@@ -1,6 +1,7 @@
 import logging
 import random
 import itertools
+import uuid
 
 from fake_the_spire import FloorOver
 from fake_the_spire.floor import Floor
@@ -16,7 +17,8 @@ class Combat(Floor):
         self.floor_type = "combat"
         self.player = {'max_energy': game_state['player']['max_energy'], 'optional_dict': {}, 'hand': {}, 'energy': 0,
                        'draw_pile': self.generate_draw_pile(game_state['player']['deck']), 'discard_pile': {},
-                       'potions': game_state['player']['potions'], 'top_of_deck_ids': []}
+                       'potions': game_state['player']['potions'], 'top_of_deck_ids': [],
+                       'exhaust_pile': {}}
         self.enemy_list = self.generate_enemies(game_state['act'], combat_type, enemy_ids)
         self.combat_type = combat_type
         self.start_combat()
@@ -43,35 +45,37 @@ class Combat(Floor):
         self.start_turn()
 
     def take_action(self, action: str):
-        logger.debug(f'Action: {action}')
-        logger.debug(f'Old state: {self.to_dict()}')
-        action = action.split(' ')
-        if action[0] == 'attack':
-            self.attack(action[1:])
-        elif action[0] == 'apply':
-            self.apply(action[1:])
-        elif action[0] == 'draw':
-            self.draw()
-        elif action[0] == 'play':
-            self.play(action[1:])
-        elif action[0] == 'end':
-            self.resolve_end_turn()
-        elif action[0] == 'gain_energy':
-            self.gain_energy(action[1:])
-        elif action[0] == 'stage':
-            self.update_stage(action[1:])
-        elif action[0] == 'damage':
-            self.damage(action[1:])
-        elif action[0] == 'blockable_damage':
-            self.blockable_damage(action[1:])
-        elif action[0] == 'add':
-            self.add_card(action[1:])
-        elif action[0] == 'put':
-            self.put_card(action[1:])
-        else:
-            logger.info(f'Invalid action: {action}')
+        action = super().take_action(action)
+        if action is not None:
+            if action[0] == 'attack':
+                self.attack(action[1:])
+            elif action[0] == 'apply':
+                self.apply(action[1:])
+            elif action[0] == 'draw':
+                self.draw(action[1:])
+            elif action[0] == 'play':
+                self.play(action[1:])
+            elif action[0] == 'end_turn':
+                self.resolve_end_turn()
+            elif action[0] == 'gain_energy':
+                self.gain_energy(action[1:])
+            elif action[0] == 'stage':
+                self.update_stage(action[1:])
+            elif action[0] == 'damage':
+                self.damage(action[1:])
+            elif action[0] == 'blockable_damage':
+                self.blockable_damage(action[1:])
+            elif action[0] == 'add':
+                self.add_card(action[1:])
+            elif action[0] == 'put':
+                self.put_card(action[1:])
+            elif action[0] == 'duplicate':
+                self.duplicate_card(action[1:])
+            elif action[0] == 'rampage':
+                self.rampage(action[1:])
+            else:
+                logger.info(f'Invalid action: {action}')
 
-        logger.debug(f'Updated state: {self.to_dict()}')
         if all(enemy['hp'] <= 0 for enemy in self.enemy_list):
             raise FloorOver
 
@@ -89,12 +93,36 @@ class Combat(Floor):
         else:
             attacker = self.get_enemy_by_id(attacker_val)
 
+        if 'perfected_strike' in attacker['optional_dict']:
+            strike_count = 0
+            for card in attacker['hand'].values():
+                if 'strike' in card['name']:
+                    strike_count += 1
+            for card in attacker['discard_pile'].values():
+                if 'strike' in card['name']:
+                    strike_count += 1
+            for card in attacker['draw_pile'].values():
+                if 'strike' in card['name']:
+                    strike_count += 1
+            attack_value += strike_count * attacker['optional_dict']['perfected_strike']
+
         if 'strength' in attacker['optional_dict']:
+            if 'heavy_blade' in attacker['optional_dict']:
+                for i in range(attacker['optional_dict']['heavy_blade'] - 1):
+                    attack_value += attacker['optional_dict']['strength']
             attack_value += attacker['optional_dict']['strength']
+        if 'body_slam' in attacker['optional_dict']:
+            if 'block' in attacker['optional_dict']:
+                attack_value += attacker['optional_dict']['block']
         if 'weak' in attacker['optional_dict']:
-            attack_value *= 0.75
+            if attacker['optional_dict']['weak'] > 0:
+                attack_value *= 0.75
         if 'vulnerable' in target['optional_dict']:
-            attack_value *= 1.5
+            if target['optional_dict']['vulnerable'] > 0:
+                if 'dropkick' in attacker['optional_dict']:
+                    self.take_action("gain_energy 1")
+                    self.take_action("draw")
+                attack_value *= 1.5
         attack_value = int(attack_value)
         if 'block' in target['optional_dict']:
             original_attack_value = attack_value
@@ -104,6 +132,8 @@ class Combat(Floor):
             target['optional_dict']['block'] -= original_attack_value
             if target['optional_dict']['block'] < 0:
                 target['optional_dict']['block'] = 0
+        if 'flame_barrier' in target['optional_dict']:
+            self.damage_character(attacker_val, target['optional_dict']['flame_barrier'])
         self.damage_character(attack_target, attack_value)
 
     def apply(self, action: list[str]):
@@ -126,12 +156,37 @@ class Combat(Floor):
             option_value = option_value + (10 * previous_mode_shift_count)
             user['optional_dict']['mode_shift_count'] += 1
 
+        if option_key == 'block':
+            if 'entrench' in user['optional_dict'] and user['optional_dict']['entrench'] > 0:
+                option_value += user['optional_dict']['block'] if 'block' in user['optional_dict'] else 0
+            if 'second_wind' in user['optional_dict'] and user['optional_dict']['second_wind'] > 0:
+                total_non_attack_cards = len([card for card in user['hand'].values() if card['type'] != 'attack']) - 1
+                option_value += (user['optional_dict']['second_wind'] * total_non_attack_cards)
+            if 'juggernaut' in user['optional_dict'] and user['optional_dict']['juggernaut'] > 0:
+                random_enemy = random.choice(self.enemy_list)['id']
+                self.take_action(f"blockable_damage {user['optional_dict']['juggernaut']} player {random_enemy}")
+
+        if option_key == 'strength':
+            if 'limit_break' in user['optional_dict'] and user['optional_dict']['limit_break'] > 0:
+                option_value += user['optional_dict']['strength'] if 'strength' in user['optional_dict'] else 0
+
+        if option_key in ['vulnerable', 'weak', 'frail']:
+            if 'artifact' in target['optional_dict'] and target['optional_dict']['artifact'] > 0:
+                target['optional_dict']['artifact'] -= 1
+                return
+
         if option_key in target['optional_dict']:
             target['optional_dict'][option_key] += option_value
         else:
             target['optional_dict'][option_key] = option_value
 
-    def draw(self):
+    def draw(self, action: list[str]):
+        if len(action) > 0:
+            played_card_id = action[1]
+        else:
+            played_card_id = ''
+        if 'battle_trance' in self.player['optional_dict'] and self.player['optional_dict']['battle_trance'] > 0:
+            return
         if len(self.player['draw_pile']) == 0:
             self.player['draw_pile'] = self.player['discard_pile']
             self.player['discard_pile'] = {}
@@ -140,59 +195,134 @@ class Combat(Floor):
                 card_id = self.player['top_of_deck_ids'].pop()
             else:
                 card_id = random.choice(list(self.player['draw_pile'].keys()))
-            card = self.player['draw_pile'].pop(card_id)
-            self.player['hand'][card_id] = card
+            if len([key for key in self.player['hand'].keys() if key != played_card_id]) < 10:
+                card = self.player['draw_pile'].pop(card_id)
+                self.player['hand'][card_id] = card
+                if 'evolve' in self.player['optional_dict']:
+                    if card['type'] == 'status':
+                        self.take_action(f"draw")
+                if 'fire_breathing' in self.player['optional_dict']:
+                    if card['type'] in ['status', 'curse']:
+                        for enemy in self.enemy_list:
+                            self.take_action(f"blockable_damage {self.player['optional_dict']['fire_breathing']} "
+                                             f"player {enemy['id']}")
 
     def play(self, action: list[str]):
         card_id = action[0]
         target_list = action[1:]
+        card = self.player['hand'][card_id]
+
+        if 'panache' in self.player['optional_dict'] and self.player['optional_dict']['panache'] > 0:
+            if 'panache_count' not in self.player['optional_dict']:
+                self.player['optional_dict']['panache_count'] = 0
+            self.player['optional_dict']['panache_count'] += 1
+            if self.player['optional_dict']['panache_count'] >= 5:
+                self.player['optional_dict']['panache_count'] = 0
+                for enemy in self.enemy_list:
+                    self.take_action(f"blockable_damage {self.player['optional_dict']['panache']} player {enemy['id']}")
+
+        if 'repeat' in card and card['repeat']:
+            repeat_count = self.player['energy']
+            energy_cost = 1
+        else:
+            repeat_count = 1
+            energy_cost = card["energy_cost"]
+        for i in range(repeat_count):
+            self.resolve_action_list(card_id, "actions", target_list)
+            self.take_action(f'gain_energy -{energy_cost}')
+
+        if card['type'] == 'skill':
+            for enemy in self.enemy_list:
+                if 'enrage' in enemy['optional_dict']:
+                    self.take_action(f"apply strength {enemy['optional_dict']['enrage']} {enemy['id']} {enemy['id']}")
+        if card['type'] == 'attack':
+            if 'double_tap' in self.player['optional_dict'] and self.player['optional_dict']['double_tap'] > 0:
+                self.take_action(f"apply double_tap -1 player player")
+                self.play(action)
+            for enemy in self.enemy_list:
+                if 'sharp_hide' in enemy['optional_dict']:
+                    self.take_action(f"blockable_damage {enemy['optional_dict']['sharp_hide']} {enemy['id']} player")
+
+            if 'rage' in self.player['optional_dict'] and self.player['optional_dict']['rage'] > 0:
+                self.take_action(f"apply block {self.player['optional_dict']['rage']} player player")
+
+        if card_id in self.player['hand']:
+            if card['type'] != 'power':
+                self.player['discard_pile'][card_id] = self.player['hand'][card_id]
+            self.player['hand'].pop(card_id)
+
+    def rampage(self, action: list[str]):
+        rampage_value = int(action[0])
+        rampage_card = action[2]
+        enemy_id = action[3]
+
+        attack_boost = self.player['optional_dict'][rampage_card] if rampage_card in self.player['optional_dict'] else 0
+        self.take_action(f"attack {attack_boost + 8} player {enemy_id}")
+        self.take_action(f"apply {rampage_card} {rampage_value} player player")
+
+    def resolve_action_list(self, card_id: str, action_keyword: str, target_list: list[str]):
         enemy_target_list = None
         discard_target_list = []
-        hand_target_list = []
+        hand_target_list = None
         for target in target_list:
             if self.get_enemy_by_id(target):
                 enemy_target_list = [target]
             if target in self.player['discard_pile']:
                 discard_target_list.append(target)
             if target in self.player['hand']:
-                hand_target_list.append(target)
+                hand_target_list = [target]
         if enemy_target_list is None:
             enemy_target_list = [enemy['id'] for enemy in self.enemy_list]
-        put_target_list = discard_target_list + hand_target_list
+        if hand_target_list is None:
+            hand_target_list = [card_id for card_id, card_dict in self.player['hand'].items()]
+        hand_target_non_attack_list = [_card_id for _card_id, card_dict in self.player['hand'].items()
+                                       if card_dict['type'] != 'attack' and _card_id != card_id]
 
-        card_actions = self.player['hand'][card_id]['actions']
+        target_dict = {'hand': hand_target_list, 'discard_pile': discard_target_list,
+                       'enemy': enemy_target_list, 'card': card_id, 'hand_non_attack': hand_target_non_attack_list,
+                       'exhaust': [card_id for card_id, card_dict in self.player['exhaust_pile'].items()]}
+
+        card = self.player['hand'][card_id]
+        card_actions = card[action_keyword]
         for (card_action, card_target) in card_actions:
-            target_string_list = self.generate_target_string_list(card_target, enemy_target_list, put_target_list)
+            target_string_list = self.generate_target_string_list(card_target, target_dict)
             for target_string in target_string_list:
-                # print(f"{card_action} player {target_string}")
+                card_action_list = card_action.split(' ')
+                if card_action_list[0] == 'apply' and card_action_list[1] == 'block':
+                    if 'panic_button' in self.player['optional_dict'] and self.player['optional_dict']['panic_button'] > 0:
+                        card_action_list[2] = '0'
+                card_action = ' '.join(card_action_list)
                 self.take_action(f"{card_action} player {target_string}")
 
-        if self.player['hand'][card_id]['type'] == 'skill':
-            for enemy in self.enemy_list:
-                if 'enrage' in enemy['optional_dict']:
-                    self.take_action(f"apply strength {enemy['optional_dict']['enrage']} {enemy['id']} {enemy['id']}")
-        if self.player['hand'][card_id]['type'] == 'attack':
-            for enemy in self.enemy_list:
-                if 'sharp_hide' in enemy['optional_dict']:
-                    self.take_action(f"blockable_damage {enemy['optional_dict']['sharp_hide']} {enemy['id']} player")
-
-        self.take_action(f'gain_energy -{self.player["hand"][card_id]["energy_cost"]}')
-        self.player['discard_pile'][card_id] = self.player['hand'][card_id]
-        self.player['hand'].pop(card_id)
-
     @staticmethod
-    def generate_target_string_list(card_target: str, enemy_target_list: list, put_target_list: list) -> list[str]:
+    def generate_target_string_list(card_target: str, target_dict: dict) -> list[str]:
+        enemy_target_list = target_dict['enemy']
         if card_target == 'self':
             return ['player']
-        if card_target == 'random':
+        if card_target == 'random_enemy':
             return [f'{random.choice(enemy_target_list)}']
-        if card_target == 'put':
-            return [' '.join(put_target_list)]
+        if card_target == 'hand':
+            return [' '.join(target_dict['hand'])]
+        if card_target == 'discard_pile':
+            return [' '.join(target_dict['discard_pile'])]
         if card_target == 'enemy':
             target_list = []
             for target in enemy_target_list:
                 target_list.append(target)
             return target_list
+        if card_target == 'self_card':
+            return [target_dict['card']]
+        if card_target == 'random_hand':
+            target_dict["hand"].remove(target_dict["card"])
+            return [f'{random.choice(target_dict["hand"])}']
+        if card_target == 'self_card_enemy':
+            target_list = []
+            for target in enemy_target_list:
+                target_list.append(f'{target_dict["card"]} {target}')
+            return target_list
+        if card_target in target_dict:
+            return target_dict[card_target]
+        raise KeyError(f"Missing {card_target} from generate_target_string_list function")
 
     def gain_energy(self, action: list[str]):
         amount = int(action[0])
@@ -239,19 +369,29 @@ class Combat(Floor):
 
     def damage(self, action: list[str]):
         damage_value = int(action[0])
-        option_user = action[1]
+        damager = action[1]
         damage_target = action[2]
+        if damager == 'player' and damage_target == 'player':
+            if 'rupture' in self.player['optional_dict'] and self.player['optional_dict']['rupture'] > 0:
+                self.take_action(f"apply strength {self.player['optional_dict']['rupture']} player player")
+
         self.damage_character(damage_target, damage_value)
 
     def add_card(self, action: list[str]):
         add_location = action[0]
         add_card = action[1]
+        card_id = action[3]
         card_reference = CardReference.get_instance()
         card = card_reference.generate_card_by_name(add_card)
         if add_location == 'discard':
             self.player['discard_pile'].update(card)
         if add_location == 'draw':
             self.player['draw_pile'].update(card)
+        if add_location == 'hand':
+            if len([key for key in self.player['hand'] if key != card_id]) > 9:
+                self.player['discard_pile'].update(card)
+            else:
+                self.player['hand'].update(card)
 
     def put_card(self, action: list[str]):
         card_ids = action[3:]
@@ -267,13 +407,33 @@ class Combat(Floor):
             if source == 'hand':
                 temp_card_pile[card_id] = self.player['hand'][card_id]
                 del self.player['hand'][card_id]
+            if source == 'exhaust':
+                temp_card_pile[card_id] = self.player['exhaust_pile'][card_id]
+                del self.player['exhaust_pile'][card_id]
             if destination == 'draw_top':
                 self.player['top_of_deck_ids'].append(card_id)
                 self.player['draw_pile'][card_id] = temp_card_pile[card_id]
+            if destination == 'exhaust':
+                if 'dark_embrace' in self.player['optional_dict']:
+                    for i in range(self.player['optional_dict']['dark_embrace']):
+                        self.take_action("draw")
+                if 'feel_no_pain' in self.player['optional_dict']:
+                    self.take_action(f"apply block {self.player['optional_dict']['feel_no_pain']} player player")
+                self.player['exhaust_pile'][card_id] = temp_card_pile[card_id]
+            if destination == 'hand':
+                self.player['hand'][card_id] = temp_card_pile[card_id]
+
+    def duplicate_card(self, action: list[str]):
+        card_id = action[1]
+        card = self.player['hand'][card_id]
+        self.player['hand'][f'{card["name"]}_{uuid.uuid4()}'] = card
 
     def damage_character(self, damage_target: str, damage_value: int):
+        if damage_value <= 0:
+            return
         if damage_target == 'player':
             self.game_state['player']['hp'] -= damage_value
+            self.take_action("apply damage_instances 1 player player")
         else:
             enemy = self.get_enemy_by_id(damage_target)
             enemy['hp'] -= damage_value
@@ -293,13 +453,15 @@ class Combat(Floor):
 
     def get_new_options(self) -> (list[str], int):
         cards_in_hand = self.player['hand']
-        enemies = self.enemy_list
         options = []
         for card_id, card in cards_in_hand.items():
             if self.is_card_is_playable(card):
                 target_dict = {'enemy': self.generate_attackable_enemy_list(),
                                'discard_pile': self.generate_discard_pile_list(),
-                               'hand': self.generate_hand_list()}
+                               'hand': self.generate_hand_list(),
+                               'attack_and_powers_in_hand': self.generate_filtered_hand_list('hand',
+                                                                                             [('type',
+                                                                                               ['power', 'attack'])])}
                 target_option_list = self.generate_target_option_list(card, target_dict)
                 for target_id in target_option_list:
                     if card_id == target_id:
@@ -307,7 +469,7 @@ class Combat(Floor):
                     options.append(f"play {card_id} {target_id}")
                 if len(target_option_list) == 0:
                     options.append(f'play {card_id}')
-        options.append('end')
+        options.append('end_turn')
         return options, 1
 
     def generate_attackable_enemy_list(self) -> list[str]:
@@ -329,7 +491,16 @@ class Combat(Floor):
             hand_list.append(card[0])
         return hand_list
 
-    def generate_target_option_list(self, card: dict, target_dict: dict) -> list[str]:
+    def generate_filtered_hand_list(self, search_location: str, search_list: list) -> list[str]:
+        filtered_hand_list = []
+        for card in self.player[search_location].items():
+            if all(search_keyword in card[1] and card[1][search_keyword] in search_value
+                   for (search_keyword, search_value) in search_list):
+                filtered_hand_list.append(card[0])
+        return filtered_hand_list
+
+    @staticmethod
+    def generate_target_option_list(card: dict, target_dict: dict) -> list[str]:
         selected_lists = []
         for keyword in card['target']:
             if keyword in target_dict:
@@ -339,34 +510,59 @@ class Combat(Floor):
         return target_option_list
 
     def is_card_is_playable(self, card: dict) -> bool:
-        if card['energy_cost'] > self.player['energy']:
+        if card['actions'] == 'unplayable':
             return False
+
         if card['name'] == 'clash':
             count_of_attacks_in_hand = len({k: v for k, v in self.player['hand'].items()
                                             if 'type' in v and v['type'] == 'attack'})
             if count_of_attacks_in_hand > 1:
                 return False
-        if card['actions'] == 'unplayable':
+
+        if card['name'] == 'blood_for_blood':
+            if 'damage_instances' in self.player['optional_dict']:
+                card['energy_cost'] -= self.player['optional_dict']['damage_instances']
+        # if card['name'] == 'spot_weakness':
+        #     all_enemy_actions = [enemy['actions'][enemy['intent']] for enemy in self.enemy_list]
+        #     all_enemy_actions = list(itertools.chain.from_iterable(all_enemy_actions))
+        if card['energy_cost'] > self.player['energy']:
             return False
         return True
 
     def resolve_end_turn(self):
+        for enemy in self.enemy_list:
+            if enemy['hp'] > 0:
+                self.resolve_enemy_action(enemy, after_player_update=False)
         self.player['energy'] = 0
-        self.player['discard_pile'].update(self.player['hand'])
-        self.player['hand'] = {}
+        self.end_of_turn_hand_update()
         self.end_of_turn_optional_dict_update()
         for enemy in self.enemy_list:
             if enemy['hp'] > 0:
-                self.resolve_enemy_action(enemy)
+                self.resolve_enemy_action(enemy, after_player_update=True)
         self.start_turn()
 
-    def resolve_enemy_action(self, enemy):
+    def end_of_turn_hand_update(self):
+        hand_copy = self.player['hand'].copy()
+        for card_id, card in hand_copy.items():
+            if 'end_of_turn' in card:
+                self.resolve_action_list(card_id, 'end_of_turn', [])
+            else:
+                card = self.player['hand'].pop(card_id)
+                self.player['discard_pile'][card_id] = card
+
+    def resolve_enemy_action(self, enemy, after_player_update):
         enemy_action = enemy['intent']
         intent_action_list = enemy['actions'][enemy_action]
+        keyword_list = ['apply']
         for intent_action, intent_target in intent_action_list:
-            self.take_action(f"{intent_action} {enemy['id']} {'player' if intent_target == 'player' else enemy['id']}")
-        enemy['action_history'].append(enemy_action)
-        self.get_new_enemy_action()
+            keyword = intent_action.split(' ')[0]
+            if (after_player_update and keyword in keyword_list) or (
+                    not after_player_update and keyword not in keyword_list):
+                self.take_action(
+                    f"{intent_action} {enemy['id']} {'player' if intent_target == 'player' else enemy['id']}")
+        if after_player_update:
+            enemy['action_history'].append(enemy_action)
+            self.get_new_enemy_action()
 
     def get_new_enemy_action(self, is_first_turn: bool = False):
         for enemy in self.enemy_list:
@@ -413,14 +609,40 @@ class Combat(Floor):
     def end_of_turn_optional_dict_update(self):
         alive_characters = [enemy for enemy in self.enemy_list if enemy['hp'] > 0] + [self.player]
         for character in alive_characters:
-            for decrement_optional_key in ['vulnerable', 'weak']:
+            for decrement_optional_key in ['vulnerable', 'weak', 'frail', 'panic_button']:
                 if decrement_optional_key in character['optional_dict']:
                     character['optional_dict'][decrement_optional_key] = (
                             character['optional_dict'][decrement_optional_key] - 1)
                     if character['optional_dict'][decrement_optional_key] < 0:
                         character['optional_dict'][decrement_optional_key] = 0
+            if 'strength_buff' in character['optional_dict']:
+                if 'strength' not in character['optional_dict']:
+                    character['optional_dict']['strength'] = 0
+                character['optional_dict']['strength'] += character['optional_dict']['strength_buff']
+                character['optional_dict']['strength_buff'] = 0
+            if 'battle_trance' in character['optional_dict']:
+                character['optional_dict']['battle_trance'] = 0
+            if 'flame_barrier' in character['optional_dict']:
+                character['optional_dict']['flame_barrier'] = 0
+            if 'rage' in character['optional_dict']:
+                character['optional_dict']['rage'] = 0
+            if 'block' in character['optional_dict']:
+                if not ('barricade' in character['optional_dict'] and character['optional_dict']['barricade'] > 0):
+                    character['optional_dict']['block'] = 0
+            if 'ritual' in character['optional_dict']:
+                if 'strength' in character['optional_dict']:
+                    character['optional_dict']['strength'] += character['optional_dict']['ritual']
+                else:
+                    character['optional_dict']['strength'] = character['optional_dict']['ritual']
 
     def start_turn(self):
         for i in range(5):
             self.take_action("draw")
+        if 'berserk' in self.player['optional_dict']:
+            for i in range(self.player['optional_dict']['berserk']):
+                self.take_action("gain_energy 1")
+        if 'brutality' in self.player['optional_dict']:
+            for i in range(self.player['optional_dict']['brutality']):
+                self.take_action("draw")
+                self.take_action("damage 1 player player")
         self.take_action(f'gain_energy {self.player["max_energy"]}')
