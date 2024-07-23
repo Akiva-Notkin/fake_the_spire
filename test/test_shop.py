@@ -100,7 +100,7 @@ class TestShop(unittest.TestCase):
         }
 
         shop = Shop(game_state)
-        options, _ = shop.get_new_options()
+        options = shop.get_new_options()
         self.assertIn('end', options)
         self.assertEqual(1, len(options))
 
@@ -164,12 +164,12 @@ class TestShop(unittest.TestCase):
             }
         }
         shop = Shop(game_state)
-        options, _ = shop.get_new_options()
+        options = shop.get_new_options()
         while not (len(options) == 1 and options[0] == 'end'):
             options_minus_end = [x for x in options if x != 'end']
             choice = random.choice(options_minus_end)
             shop.take_action(choice)
-            options, _ = shop.get_new_options()
+            options = shop.get_new_options()
         with self.assertRaises(FloorOver):
             shop.take_action('end')
         self.assertEqual(sum(game_state['player']['potions'].values()), 2)

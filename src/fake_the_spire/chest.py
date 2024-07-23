@@ -17,7 +17,7 @@ class Chest(Floor):
     def take_action(self, action: str):
         super().take_action(action)
 
-    def get_new_options(self) -> (list[str], int):
+    def get_new_options(self) -> list[str]:
         options = super().get_new_options()
         if options is not None:
             return options
@@ -27,6 +27,7 @@ class Chest(Floor):
         if self.chest["gold"]:
             options.append(f'gold {self.chest["gold"]}')
         options.append('end')
+        return options
 
     def to_dict(self) -> dict:
         pass

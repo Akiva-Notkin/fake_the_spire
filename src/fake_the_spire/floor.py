@@ -10,17 +10,17 @@ class Floor:
         self.game_state = game_state
         self.can_remove_card = False
 
-    def get_new_options(self) -> (list[str], int):
+    def get_new_options(self) -> list[str]:
         options = []
         if sum(self.game_state['player']['potions'].values()) > self.game_state['player']['max_potions']:
             for potion in self.game_state['player']['potions']:
                 options.append(f"drop {potion}")
-            return options, 1
+            return options
 
         if self.can_remove_card:
             for card in self.game_state['player']['deck'].keys():
                 options.append(f"remove {card}")
-            return options, 1
+            return options
 
     def to_dict(self):
         ...

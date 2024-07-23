@@ -151,13 +151,13 @@ energy_cost = 1
 rarity = "common"
 color = "red"
 
-#[cards.true_grit]
-#type = "skill"
-#actions = [["apply block 7", "self"], ["put hand exhaust", "random_hand"]]
-#target = ["self"]
-#energy_cost = 1
-#rarity = "common"
-#color = "red"
+[cards.true_grit]
+type = "skill"
+actions = [["apply block 7", "self"], ["put hand exhaust", "random_hand"]]
+target = ["self"]
+energy_cost = 1
+rarity = "common"
+color = "red"
 
 [cards.twin_strike]
 type = "attack"
@@ -191,13 +191,13 @@ energy_cost = 0
 rarity = "uncommon"
 color = "red"
 
-#[cards.blood_for_blood]
-#type = "skill"
-#actions = [["attack 18", "enemy"]]
-#target = ["enemy"]
-#energy_cost = 4
-#rarity = "uncommon"
-#color = "red"
+[cards.blood_for_blood]
+type = "skill"
+actions = [["attack 18", "enemy"]]
+target = ["enemy"]
+energy_cost = 4
+rarity = "uncommon"
+color = "red"
 
 [cards.bloodletting]
 type = "skill"
@@ -236,7 +236,7 @@ color = "red"
 type = "power"
 actions = [["apply dark_embrace 1", "self"]]
 target = ["self"]
-energy_cost = 1
+energy_cost = 2
 rarity = "uncommon"
 color = "red"
 
@@ -540,7 +540,7 @@ color = "red"
 [cards.immolate]
 type = "attack"
 actions = [["attack 21", "enemy"], ["add discard burn", "self"]]
-target = ["enemy"]
+target = ["all"]
 energy_cost = 2
 rarity = "rare"
 color = "red"

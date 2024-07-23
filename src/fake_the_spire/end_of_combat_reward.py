@@ -33,7 +33,7 @@ class EndOfCombatReward(Floor):
             rewards_dict['relics'] = relic_rewards if relic_rewards else self.get_relic_rewards()
         return rewards_dict
 
-    def get_new_options(self) -> (list[str], int):
+    def get_new_options(self) -> list[str]:
         super().get_new_options()
         options = []
         for action_type, reward_list in self.rewards_dict.items():
@@ -42,7 +42,7 @@ class EndOfCombatReward(Floor):
             for reward in reward_list:
                 options.append(f"{action_type} {reward}")
         options.append('end')
-        return options, 1
+        return options
 
     def remove_from_current_floor(self, removal_type: str, removal_key: str):
         if removal_type == 'cards':

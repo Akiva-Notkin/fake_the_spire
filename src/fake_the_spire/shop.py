@@ -18,7 +18,7 @@ class Shop(Floor):
         self.shop = self.generate_base_shop()
         self.removed_this_shop = False
 
-    def get_new_options(self) -> (list[str], int):
+    def get_new_options(self) -> list[str]:
         options = super().get_new_options()
         if options is not None:
             return options
@@ -30,7 +30,7 @@ class Shop(Floor):
         if self.game_state['player']['gold'] >= self.get_card_removal_cost() and not self.removed_this_shop:
             options.append(f"remove_card")
         options.append('end')
-        return options, 1
+        return options
 
     def to_dict(self):
         return self.shop

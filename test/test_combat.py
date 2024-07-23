@@ -442,10 +442,10 @@ class TestCombat(unittest.TestCase):
         combat = Combat(game_state, ['louse'])
         enemy_id = combat.enemy_list[0]['id']
         clash_id = get_key_by_substring(combat.player['hand'], 'clash')
-        self.assertNotIn(f"play {clash_id} {enemy_id}", combat.get_new_options()[0])
+        self.assertNotIn(f"play {clash_id} {enemy_id}", combat.get_new_options())
         strike_id = get_key_by_substring(combat.player['hand'], 'strike')
         combat.take_action(f"play {strike_id} {enemy_id}")
-        self.assertIn(f"play {clash_id} {enemy_id}", combat.get_new_options()[0])
+        self.assertIn(f"play {clash_id} {enemy_id}", combat.get_new_options())
         combat.take_action(f"play {clash_id} {enemy_id}")
         self.assertEqual(80, combat.enemy_list[0]['hp'])
 
@@ -772,8 +772,8 @@ class TestCombat(unittest.TestCase):
         combat = Combat(game_state, ['louse'])
         warcry_id = get_key_by_substring(combat.player['hand'], 'warcry')
         strike_id = get_key_by_substring(combat.player['hand'], 'strike')
-        self.assertIn(f"play {warcry_id} {strike_id}", combat.get_new_options()[0])
-        self.assertNotIn(f"play {warcry_id} {warcry_id}", combat.get_new_options()[0])
+        self.assertIn(f"play {warcry_id} {strike_id}", combat.get_new_options())
+        self.assertNotIn(f"play {warcry_id} {warcry_id}", combat.get_new_options())
         combat.take_action(f"play {warcry_id} {strike_id}")
         self.assertIn(strike_id, combat.player['top_of_deck_ids'])
         self.assertIn(strike_id, combat.player['draw_pile'])
@@ -849,11 +849,11 @@ class TestCombat(unittest.TestCase):
             }
         }
         combat = Combat(game_state, ['louse'])
-        self.assertEqual(['end_turn'], combat.get_new_options()[0])
+        self.assertEqual(['end_turn'], combat.get_new_options())
         combat.take_action("end_turn")
         enemy_id = combat.enemy_list[0]['id']
         blood_for_blood_id = get_key_by_substring(combat.player['hand'], 'blood_for_blood')
-        self.assertIn(f"play {blood_for_blood_id} {enemy_id}", combat.get_new_options()[0])
+        self.assertIn(f"play {blood_for_blood_id} {enemy_id}", combat.get_new_options())
         combat.take_action(f"play {blood_for_blood_id} {enemy_id}")
         self.assertEqual(combat.enemy_list[0]['hp'], 82)
 
@@ -1048,9 +1048,9 @@ class TestCombat(unittest.TestCase):
         strike_id = get_key_by_substring(combat.player['hand'], 'strike')
         dark_embrace_id = get_key_by_substring(combat.player['hand'], 'dark_embrace')
         defend_id = get_key_by_substring(combat.player['hand'], 'defend')
-        self.assertIn(f"play {dual_wield_id} {strike_id}", combat.get_new_options()[0])
-        self.assertIn(f"play {dual_wield_id} {dark_embrace_id}", combat.get_new_options()[0])
-        self.assertNotIn(f"play {dual_wield_id} {defend_id}", combat.get_new_options()[0])
+        self.assertIn(f"play {dual_wield_id} {strike_id}", combat.get_new_options())
+        self.assertIn(f"play {dual_wield_id} {dark_embrace_id}", combat.get_new_options())
+        self.assertNotIn(f"play {dual_wield_id} {defend_id}", combat.get_new_options())
         combat.take_action(f"play {dual_wield_id} {strike_id}")
         dual_wield_id_2 = get_key_by_substring(combat.player['hand'], 'dual_wield')
         combat.take_action(f"play {dual_wield_id_2} {dark_embrace_id}")
@@ -1109,7 +1109,7 @@ class TestCombat(unittest.TestCase):
         for i in range(4):
             power_through_id = get_key_by_substring(combat.player['hand'], 'power_through')
             combat.take_action(f"play {power_through_id}")
-        self.assertEqual(['end_turn'], combat.get_new_options()[0])
+        self.assertEqual(['end_turn'], combat.get_new_options())
         combat.take_action("end_turn")
         self.assertEqual(len(combat.player['hand']), 10)
     def test_feel_no_pain(self):

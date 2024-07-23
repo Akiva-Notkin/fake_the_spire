@@ -124,7 +124,7 @@ class TestEndOfCombatReward(unittest.TestCase):
                 "hp": 5,
                 "max_energy": 3,
                 "max_hp": 5,
-                "potions": {'fake_potion': 2},
+                "potions": {'block_potion': 2},
                 "max_potions": 2,
                 "relics": []
             },

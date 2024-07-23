@@ -29,21 +29,20 @@ class Game:
                                'seen_relics': []
                            }}
         self.current_options = []
-        self.current_options_amount = 0
         self.enemy_reference = EnemyReference(config.ENEMY_TOML, "enemies", reset=True)
         self.card_reference = CardReference(config.CARD_TOML, "cards", reset=True)
         self.initialize_game()
 
     def initialize_game(self):
         self.floor = Combat(self.game_state)
-        self.current_options, self.current_options_amount = self.floor.get_new_options()
+        options = self.floor.get_new_options()
+        options = [x.strip() for x in options]
+        self.current_options = options
 
     def validate_action(self, action_lst: list[str]) -> bool:
         for action in action_lst:
             if action not in self.current_options:
                 return False
-        if len(action_lst) != self.current_options_amount:
-            return False
         return True
 
     def action_initiate(self, action: list[str]):
@@ -54,8 +53,8 @@ class Game:
             self.floor = self.get_next_floor()
         if self.game_state['player']['hp'] <= 0:
             raise GameOver(won=False)
-        updated_options = self.floor.get_new_options()
-        self.current_options, self.current_options_amount = updated_options
+        updated_options = [x.strip() for x in self.floor.get_new_options()]
+        self.current_options = updated_options
 
     def get_next_floor(self):
         if self.floor.floor_type == "combat":

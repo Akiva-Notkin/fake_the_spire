@@ -487,7 +487,7 @@ class Combat(Floor):
                 return enemy
         return None
 
-    def get_new_options(self) -> (list[str], int):
+    def get_new_options(self) -> list[str]:
         cards_in_hand = self.player['hand']
         potions = self.player['potions']
         options = []
@@ -516,7 +516,7 @@ class Combat(Floor):
                 options.append(f'play_potion {potion_id}')
 
         options.append('end_turn')
-        return options, 1
+        return options
 
     def generate_attackable_enemy_list(self) -> list[str]:
         enemy_list = []
