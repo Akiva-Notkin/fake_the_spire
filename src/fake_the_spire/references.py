@@ -34,7 +34,7 @@ class BaseReference:
             if all(search_keyword in entity_dict and entity_dict[search_keyword] in search_value
                    for (search_keyword, search_value) in search_list):
                 entity_dict['name'] = entity_name
-                entities.append((f"{entity_name}_{uuid.uuid4()}", entity_dict))
+                entities.append((f"{entity_name}-{uuid.uuid4()}", entity_dict))
         return entities
 
     def get_single_entity_by_probability_dict(self, probability_keyword: str, probability_dict: dict,
@@ -57,7 +57,7 @@ class BaseReference:
         entity_dict = {}
         entity_instance = self.all_entities[name].copy()
         entity_instance['name'] = name
-        entity_dict[f'{name}_{uuid.uuid4()}'] = entity_instance
+        entity_dict[f'{name}-{uuid.uuid4()}'] = entity_instance
         return entity_dict
 
 
@@ -70,7 +70,7 @@ class EnemyReference(BaseReference):
 
     def generate_enemy_by_id(self, enemy_id: str) -> dict:
         enemy_copy = self.all_entities[enemy_id].copy()
-        enemy_copy['id'] = f"{enemy_id}_{uuid.uuid4()}"
+        enemy_copy['id'] = f"{enemy_id}-{uuid.uuid4()}"
         enemy_copy['hp'] = enemy_copy['max_hp']
         if 'optional_dict' not in enemy_copy:
             enemy_copy['optional_dict'] = {}
