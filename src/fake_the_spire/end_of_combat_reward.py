@@ -34,7 +34,9 @@ class EndOfCombatReward(Floor):
         return rewards_dict
 
     def get_new_options(self) -> list[str]:
-        super().get_new_options()
+        new_options = super().get_new_options()
+        if new_options is not None:
+            return new_options
         options = []
         for action_type, reward_list in self.rewards_dict.items():
             if 'cards' in action_type:

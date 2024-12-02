@@ -340,13 +340,13 @@ energy_cost = 1
 rarity = "uncommon"
 color = "red"
 
-#[cards.metallicize]
-#type = "power"
-#actions = [["apply def metallicize 3", "self"]]
-#target = ["self"]
-#energy_cost = 1
-#rarity = "uncommon"
-#color = "red"
+[cards.metallicize]
+type = "power"
+actions = [["apply metallicize 3", "self"]]
+target = ["self"]
+energy_cost = 1
+rarity = "uncommon"
+color = "red"
 
 [cards.power_through]
 type = "skill"
@@ -578,18 +578,19 @@ target = ["self"]
 energy_cost = 0
 rarity = "rare"
 color = "red"
-#
-#[cards.reaper]
-#type = "attack"
-#actions = [["apply reaper 1", "self"], ["attack 4", "enemy"], ["apply reaper -1", "self"]]
-#target = ["all"]
-#energy_cost = 2
-#rarity = "rare"
-#color = "red"
+
+[cards.reaper]
+type = "attack"
+actions = [["apply reaper 1", "self"], ["attack 4", "enemy"], ["apply reaper -1", "self"],
+    ["put hand exhaust", "self_card"]]
+target = ["all"]
+energy_cost = 2
+rarity = "rare"
+color = "red"
 
 [cards.bandage_up]
 type = "skill"
-actions = [["heal 4", "self"], ["put hand exhaust", "self_card"]]
+actions = [["heal_player 4", "self"], ["put hand exhaust", "self_card"]]
 target = ["self"]
 energy_cost = 0
 rarity = "uncommon"
@@ -768,7 +769,7 @@ end_of_turn = [["put hand exhaust", "self_card"]]
 
 [cards.bite]
 type = "attack"
-actions = [["attack 7", "enemy"], ["heal 2", "self"]]
+actions = [["attack 7", "enemy"], ["heal_player 2", "self"]]
 target = ["enemy"]
 energy_cost = 1
 rarity = "special"

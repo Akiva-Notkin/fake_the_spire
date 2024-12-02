@@ -124,7 +124,7 @@ class TestEndOfCombatReward(unittest.TestCase):
                 "hp": 5,
                 "max_energy": 3,
                 "max_hp": 5,
-                "potions": {'block_potion': 2},
+                "potions": {'block': 2},
                 "max_potions": 2,
                 "relics": []
             },
@@ -135,15 +135,16 @@ class TestEndOfCombatReward(unittest.TestCase):
             }
         }
         end_of_combat_reward = EndOfCombatReward(game_state, combat_type='hallway', card_reward_count=1)
-        potion_name = end_of_combat_reward.rewards_dict['potions'][0]
-        end_of_combat_reward.take_action(f"potions {potion_name}")
-        last_underscore_index = potion_name.rfind('_')
-        potion_name = potion_name[:last_underscore_index]
+        potion_id = end_of_combat_reward.rewards_dict['potions'][0]
+        end_of_combat_reward.take_action(f"potions {potion_id}")
+        last_underscore_index = potion_id.rfind('_')
+        potion_name = potion_id[:last_underscore_index]
+        new_options = end_of_combat_reward.get_new_options()
         self.assertIn(potion_name, game_state['player']['potions'])
-        self.assertNotIn("end", end_of_combat_reward.get_new_options())
-        end_of_combat_reward.take_action(f"drop fake_potion")
-        self.assertIn(potion_name, game_state['player']['potions'])
-        self.assertEqual(sum(game_state['player']['potions'].values()), 2)
+        self.assertNotIn("end", new_options)
+        end_of_combat_reward.take_action(f"drop {potion_name}")
+        self.assertIn('block', game_state['player']['potions'])
+        self.assertEqual(game_state['player']['potions']['block'], 2)
 
     def test_white_beast_statue(self):
         game_state = {

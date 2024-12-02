@@ -144,6 +144,8 @@ class Combat(Floor):
             self.damage_character(attacker_val, target['optional_dict']['flame_barrier'])
         if 'thorns' in target['optional_dict']:
             self.damage_character(attacker_val, target['optional_dict']['thorns'])
+        if 'reaper' in attacker['optional_dict']:
+            self.take_action(f'heal_player {attack_value}')
         self.damage_character(attack_target, attack_value)
 
     def apply(self, action: list[str]):
@@ -481,7 +483,7 @@ class Combat(Floor):
                     enemy['current_stage_action_key'] = 0
                     self.get_new_enemy_action()
 
-    def get_enemy_by_id(self, enemy_id: str) -> dict | None:
+    def get_enemy_by_id(self, enemy_id: str) -> dict:
         for enemy in self.enemy_list:
             if enemy['id'] == enemy_id:
                 return enemy
@@ -686,7 +688,7 @@ class Combat(Floor):
                 else:
                     character['optional_dict']['strength'] = character['optional_dict']['ritual']
             if 'regen' in character['optional_dict'] and character['optional_dict']['regen'] > 0:
-                self.take_action(f"heal {character['optional_dict']['regen']}")
+                self.take_action(f"heal_player {character['optional_dict']['regen']}")
                 character['optional_dict']['regen'] -= 1
 
     def start_turn(self):

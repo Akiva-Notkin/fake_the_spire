@@ -41,8 +41,8 @@ class Floor:
             self.drop_potion(action[1:])
         elif action[0] == 'remove':
             self.remove_card(action[1:])
-        elif action[0] == 'heal':
-            self.heal(action[1:])
+        elif action[0] == 'heal_player':
+            self.heal_player(action[1:])
         elif action[0] == 'max_hp':
             self.max_hp(action[1:])
         else:
@@ -94,7 +94,7 @@ class Floor:
         self.game_state['player']['gold'] += int(gold_amount)
         self.remove_from_current_floor('gold', gold_amount)
 
-    def heal(self, action: list[str]):
+    def heal_player(self, action: list[str]):
         heal_amount = action[0]
         self.game_state['player']['hp'] += int(heal_amount)
         if self.game_state['player']['hp'] > self.game_state['player']['max_hp']:
