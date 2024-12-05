@@ -80,6 +80,8 @@ class Combat(Floor):
                 self.duplicate_card(action[1:])
             elif action[0] == 'rampage':
                 self.rampage(action[1:])
+            elif action[0] == 'upgrade':
+                self.upgrade_card(action[1:])
             else:
                 logger.info(f'Invalid action: {action}')
 
@@ -460,6 +462,16 @@ class Combat(Floor):
                 self.player['exhaust_pile'][card_id] = temp_card_pile[card_id]
             if destination == 'hand':
                 self.player['hand'][card_id] = temp_card_pile[card_id]
+
+    def upgrade_card(self, action: list[str]):
+        card_ids = action[1:]
+        for card_id in card_ids:
+            first_dash_index = card_id.find('-')
+            card_name = card_id[:first_dash_index]
+            card_reference = CardReference.get_instance()
+            upgraded_card = card_reference.generate_entity_by_name(f"{card_name}_plus")
+            self.player['hand'].update(upgraded_card)
+            del self.player['hand'][card_id]
 
     def duplicate_card(self, action: list[str]):
         card_id = action[1]

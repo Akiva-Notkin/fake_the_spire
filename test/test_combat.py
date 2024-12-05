@@ -2226,3 +2226,26 @@ class TestCombat(unittest.TestCase):
         self.assertEqual(combat.enemy_list[0]['hp'], 90)
         self.assertEqual(combat.enemy_list[1]['hp'], 90)
 
+    def test_armaments(self):
+        game_state = {
+                    "floor_num": 1,
+                    "act": 1,
+                    "player": {
+                        "deck": {
+                            "armaments": 1,
+                            "strike": 4
+                        },
+                        "hp": 100,
+                        "max_energy": 3,
+                        "max_hp": 100,
+                        "potions": {}
+                    }
+                }
+
+        combat = Combat(game_state, ['louse'])
+        armaments_id = get_key_by_substring(combat.player['hand'], 'armaments')
+        strike_id = get_key_by_substring(combat.player['hand'], 'strike')
+        combat.take_action(f"play {armaments_id} {strike_id}")
+        upgraded_strike = get_key_by_substring(combat.player['hand'], 'strike_plus')
+        self.assertIsNotNone(upgraded_strike)
+        self.assertIn(armaments_id, combat.player['discard_pile'])

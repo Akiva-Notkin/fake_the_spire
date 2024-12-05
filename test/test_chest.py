@@ -32,8 +32,8 @@ class TestChest(unittest.TestCase):
         chest = Chest(game_state)
         relic_to_choose = chest.chest["relics"][0]
         chest.take_action(f'relics {relic_to_choose}')
-        last_underscore_index = relic_to_choose.rfind('_')
-        relic_to_choose = relic_to_choose[:last_underscore_index]
+        first_dash_index = relic_to_choose.find('-')
+        relic_to_choose = relic_to_choose[:first_dash_index]
         self.assertIn(relic_to_choose, game_state['player']['relics'])
 
     def test_take_gold(self):

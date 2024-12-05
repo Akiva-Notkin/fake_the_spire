@@ -29,8 +29,8 @@ class TestEndOfCombatReward(unittest.TestCase):
         end_of_combat_reward = EndOfCombatReward(game_state, combat_type='hallway', card_reward_count=1)
         random_card_option = end_of_combat_reward.rewards_dict['cards_0'][0]
         end_of_combat_reward.take_action(f"cards {random_card_option}")
-        last_underscore_index = random_card_option.rfind('_')
-        card_name = random_card_option[:last_underscore_index]
+        first_dash_index = random_card_option.find('-')
+        card_name = random_card_option[:first_dash_index]
         self.assertIn(card_name, game_state['player']['deck'].keys())
 
     def test_get_potion_reward(self):
@@ -57,8 +57,8 @@ class TestEndOfCombatReward(unittest.TestCase):
         end_of_combat_reward = EndOfCombatReward(game_state, combat_type='hallway', card_reward_count=1)
         random_potion_option = end_of_combat_reward.rewards_dict['potions'][0]
         end_of_combat_reward.take_action(f"potions {random_potion_option}")
-        last_underscore_index = random_potion_option.rfind('_')
-        random_potion_option = random_potion_option[:last_underscore_index]
+        first_dash_index = random_potion_option.find('-')
+        random_potion_option = random_potion_option[:first_dash_index]
         self.assertIn(random_potion_option, game_state['player']['potions'])
 
     def test_no_potion_on_0_pct_chance(self):
@@ -110,8 +110,8 @@ class TestEndOfCombatReward(unittest.TestCase):
         end_of_combat_reward = EndOfCombatReward(game_state, combat_type='elite', card_reward_count=1)
         relic_name = end_of_combat_reward.rewards_dict['relics'][0]
         end_of_combat_reward.take_action(f"relics {relic_name}")
-        last_underscore_index = relic_name.rfind('_')
-        relic_name = relic_name[:last_underscore_index]
+        first_dash_index = relic_name.find('-')
+        relic_name = relic_name[:first_dash_index]
         self.assertIn(relic_name, game_state['player']['relics'])
 
     def test_gain_too_many_potions(self):
@@ -137,8 +137,8 @@ class TestEndOfCombatReward(unittest.TestCase):
         end_of_combat_reward = EndOfCombatReward(game_state, combat_type='hallway', card_reward_count=1)
         potion_id = end_of_combat_reward.rewards_dict['potions'][0]
         end_of_combat_reward.take_action(f"potions {potion_id}")
-        last_underscore_index = potion_id.rfind('_')
-        potion_name = potion_id[:last_underscore_index]
+        first_dash_index = potion_id.find('-')
+        potion_name = potion_id[:first_dash_index]
         new_options = end_of_combat_reward.get_new_options()
         self.assertIn(potion_name, game_state['player']['potions'])
         self.assertNotIn("end", new_options)
@@ -169,8 +169,8 @@ class TestEndOfCombatReward(unittest.TestCase):
         end_of_combat_reward = EndOfCombatReward(game_state, combat_type='hallway', card_reward_count=1)
         potion_name = end_of_combat_reward.rewards_dict['potions'][0]
         end_of_combat_reward.take_action(f"potions {potion_name}")
-        last_underscore_index = potion_name.rfind('_')
-        potion_name = potion_name[:last_underscore_index]
+        first_dash_index = potion_name.find('-')
+        potion_name = potion_name[:first_dash_index]
         self.assertIn(potion_name, game_state['player']['potions'])
 
     def test_multiple_card_rewards(self):
@@ -196,11 +196,11 @@ class TestEndOfCombatReward(unittest.TestCase):
         random_card_option_1 = end_of_combat_reward.rewards_dict['cards_1'][0]
         end_of_combat_reward.take_action(f"cards {random_card_option_0}")
         end_of_combat_reward.take_action(f"cards {random_card_option_1}")
-        last_underscore_index_0 = random_card_option_0.rfind('_')
-        card_name_0 = random_card_option_0[:last_underscore_index_0]
+        first_dash_index_0 = random_card_option_0.find('-')
+        card_name_0 = random_card_option_0[:first_dash_index_0]
         self.assertIn(card_name_0, game_state['player']['deck'].keys())
-        last_underscore_index_1 = random_card_option_1.rfind('_')
-        card_name_1 = random_card_option_1[:last_underscore_index_1]
+        first_dash_index_1 = random_card_option_1.find('-')
+        card_name_1 = random_card_option_1[:first_dash_index_1]
         self.assertIn(card_name_1, game_state['player']['deck'].keys())
 
 

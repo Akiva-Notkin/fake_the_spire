@@ -5,7 +5,15 @@ energy_cost = 1
 target = ["enemy"]
 actions = [["attack 6", "enemy"]]
 rarity = "base"
-color = "colorless"
+color = "red"
+
+[cards.strike_plus]
+type = "attack"
+energy_cost = 1
+target = ["enemy"]
+actions = [["attack 9", "enemy"]]
+rarity = "base"
+color = "red"
 
 [cards.defend]
 type = "skill"
@@ -13,11 +21,27 @@ actions = [["apply block 5", "self"]]
 energy_cost = 1
 target = ["self"]
 rarity = "base"
-color = "colorless"
+color = "red"
+
+[cards.defend_plus]
+type = "skill"
+actions = [["apply block 8", "self"]]
+energy_cost = 1
+target = ["self"]
+rarity = "base"
+color = "red"
 
 [cards.bash]
 type = "attack"
 actions = [["attack 8", "enemy"], ["apply vulnerable 2", "enemy"]]
+target = ["enemy"]
+energy_cost = 2
+rarity = "base"
+color = "red"
+
+[cards.bash_plus]
+type = "attack"
+actions = [["attack 10", "enemy"], ["apply vulnerable 3", "enemy"]]
 target = ["enemy"]
 energy_cost = 2
 rarity = "base"
@@ -31,13 +55,29 @@ energy_cost = 0
 rarity = "common"
 color = "red"
 
-#[cards.armaments]
-#type = "skill"
-#actions = [["apply block 5", "self"], ["upgrade", "random_hand"]]
-#target = ["self"]
-#energy_cost = 1
-#rarity = "common"
-#color = "red"
+[cards.anger_plus]
+type = "attack"
+actions = [["attack 8", "enemy"], ["add discard anger", "self"]]
+target = ["enemy"]
+energy_cost = 0
+rarity = "common"
+color = "red"
+
+[cards.armaments]
+type = "skill"
+actions = [["apply block 5", "self"], ["upgrade", "hand"]]
+target = ["self"]
+energy_cost = 1
+rarity = "common"
+color = "red"
+
+[cards.armaments_plus]
+type = "skill"
+actions = [["apply block 5", "self"], ["upgrade", "all_hand"]]
+target = ["self"]
+energy_cost = 1
+rarity = "common"
+color = "red"
 
 [cards.body_slam]
 type = "attack"

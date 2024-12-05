@@ -1,6 +1,7 @@
 import logging
 
 from fake_the_spire import FloorOver
+from fake_the_spire.references import CardReference
 
 logger = logging.getLogger('flask_app')
 
@@ -45,6 +46,8 @@ class Floor:
             self.heal_player(action[1:])
         elif action[0] == 'max_hp':
             self.max_hp(action[1:])
+        elif action[0] == 'upgrade':
+            self.upgrade_card(action[1:])
         else:
             return action
 
@@ -64,15 +67,15 @@ class Floor:
 
     def take_relic(self, action: list[str]):
         relic = action[0]
-        last_underscore_index = relic.rfind('_')
-        relic_name = relic[:last_underscore_index]
+        first_dash_index = relic.find('-')
+        relic_name = relic[:first_dash_index]
         self.game_state['player']['relics'].append(relic_name)
         self.remove_from_current_floor('relics', relic)
 
     def take_card(self, action: list[str]):
         card = action[0]
-        last_underscore_index = card.rfind('_')
-        card_name = card[:last_underscore_index]
+        first_dash_index = card.find('-')
+        card_name = card[:first_dash_index]
         if card_name in self.game_state['player']['deck']:
             self.game_state['player']['deck'][card_name] += 1
         else:
@@ -81,8 +84,8 @@ class Floor:
 
     def take_potion(self, action: list[str]):
         potion = action[0]
-        last_underscore_index = potion.rfind('_')
-        potion_name = potion[:last_underscore_index]
+        first_dash_index = potion.find('-')
+        potion_name = potion[:first_dash_index]
         if potion_name in self.game_state['player']['potions']:
             self.game_state['player']['potions'][potion_name] += 1
         else:
@@ -104,6 +107,21 @@ class Floor:
         increase_amount = int(action[0])
         self.game_state['player']['max_hp'] += increase_amount
         self.game_state['player']['hp'] += increase_amount
+
+    def upgrade_card(self, action: list[str]):
+        card_ids = action[2:]
+        location = action[0]
+
+        for card_id in card_ids:
+            first_dash_index = card_id.find('-')
+            card_name = card_id[:first_dash_index]
+            if location == 'deck':
+                upgraded_card_name = f"{card_name}_plus"
+                if upgraded_card_name in self.game_state['player']['deck']:
+                    self.game_state['player']['deck'][upgraded_card_name] += 1
+                else:
+                    self.game_state['player']['deck'][upgraded_card_name] = 1
+                self.game_state['player']['deck'][card_name] -= 1
 
     def remove_from_current_floor(self, removal_type: str, removal_key: str):
         ...

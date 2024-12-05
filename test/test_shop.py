@@ -34,8 +34,8 @@ class TestShop(unittest.TestCase):
         shop = Shop(game_state)
         random_card_option, cost = shop.shop['cards'][0]
         shop.take_action(f"cards {random_card_option}")
-        last_underscore_index = random_card_option.rfind('_')
-        card_name = random_card_option[:last_underscore_index]
+        first_dash_index = random_card_option.find('-')
+        card_name = random_card_option[:first_dash_index]
         self.assertIn(card_name, game_state['player']['deck'].keys())
         self.assertEqual(game_state['player']['gold'] + cost, 1000)
 
@@ -67,8 +67,8 @@ class TestShop(unittest.TestCase):
         shop = Shop(game_state)
         random_potion_option, cost = shop.shop['potions'][0]
         shop.take_action(f"potions {random_potion_option}")
-        last_underscore_index = random_potion_option.rfind('_')
-        random_potion_option = random_potion_option[:last_underscore_index]
+        first_dash_index = random_potion_option.find('-')
+        random_potion_option = random_potion_option[:first_dash_index]
         self.assertIn(random_potion_option, game_state['player']['potions'].keys())
         self.assertEqual(game_state['player']['gold'] + cost, 1000)
 
@@ -132,8 +132,8 @@ class TestShop(unittest.TestCase):
         shop = Shop(game_state)
         random_relic, cost = shop.shop['relics'][0]
         shop.take_action(f"relics {random_relic}")
-        last_underscore_index = random_relic.rfind('_')
-        random_relic = random_relic[:last_underscore_index]
+        first_dash_index = random_relic.find('-')
+        random_relic = random_relic[:first_dash_index]
         self.assertIn(random_relic, game_state['player']['relics'])
         self.assertEqual(game_state['player']['gold'] + cost, 1000)
 

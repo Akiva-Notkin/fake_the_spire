@@ -16,7 +16,7 @@ for index, row in all_cards_df.iterrows():
         card_dicts[current_card_dict][row['Name']] = {'type': row['Type'], 'rarity': row['Rarity'], 'cost': row['Cost'],
                                                       'description': row['Description']}
 
-already_made_cards = toml.load('/Users/akivanotkin/PycharmProjects/fake_the_spire/data/cards.toml')
+already_made_cards = toml.load('../data/cards.toml')
 ironclad_cards = card_dicts['Ironclad Cards']
 for card_name, card_dict in ironclad_cards.items():
     if card_name.replace(' ', '_').lower() not in already_made_cards['cards']:
